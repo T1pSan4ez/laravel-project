@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreHallRequest;
+use App\Http\Requests\UpdateSeatsRequest;
 use App\Models\Cinema;
 use App\Models\Hall;
 use App\Models\Slot;
@@ -19,12 +21,8 @@ class HallController extends Controller
         ]);
     }
 
-    public function store(Request $request, $cinema_id)
+    public function store(StoreHallRequest $request, $cinema_id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
         $cinema = Cinema::findOrFail($cinema_id);
         $cinema->halls()->create([
             'name' => $request->input('name'),
@@ -60,7 +58,6 @@ class HallController extends Controller
             $key = "{$seat['row']}-{$seat['number']}";
             $seatStyles[$key] = $seat['type'] === 'vip' ? 'vip' : 'standard';
         }
-
 
         $maxRow = !empty($selectedSeats) ? max(array_column($selectedSeats, 'row')) : 10;
         $maxColumn = !empty($selectedSeats) ? max(array_column($selectedSeats, 'number')) : 10;
@@ -103,13 +100,12 @@ class HallController extends Controller
         ]);
     }
 
-    public function updateSeats(Request $request, $cinema_id, $hall_id)
+    public function updateSeats(UpdateSeatsRequest $request, $cinema_id, $hall_id)
     {
         $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
-        $selectedSeats = json_decode($request->input('selected_seats', '[]'), true);
+        $selectedSeats = json_decode($request->input('selected_seats'), true);
 
         $existingSeats = $hall->slots()->get(['row', 'number', 'type', 'price'])->toArray();
-
         $seatsToAdd = [];
 
         foreach ($selectedSeats as $seat) {
@@ -149,9 +145,6 @@ class HallController extends Controller
         return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
             ->with('success', 'Hall configuration updated successfully.');
     }
-
-
-
 
     public function clearSeats($cinema_id, $hall_id)
     {

@@ -27,6 +27,9 @@
                 <a class="nav-link text-white" href="{{ route('cinemas') }}">Cinemas</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('sessions') }}">Sessions</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link text-white" href="{{ route('users') }}">Users</a>
             </li>
         </ul>

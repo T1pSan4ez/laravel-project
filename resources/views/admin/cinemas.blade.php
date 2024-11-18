@@ -15,7 +15,10 @@
                 @csrf
                 <div class="mb-3">
                     <label for="city_name" class="form-label">City Name</label>
-                    <input type="text" class="form-control" id="city_name" name="city_name" required>
+                    <input type="text" class="form-control @error('city_name') is-invalid @enderror" id="city_name" name="city_name" value="{{ old('city_name') }}">
+                    @error('city_name')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
                 <button type="submit" class="btn btn-primary">Add City</button>
             </form>
@@ -27,27 +30,40 @@
                 @csrf
                 <div class="mb-3">
                     <label for="city_id" class="form-label">Select City</label>
-                    <select class="form-select" id="city_id" name="city_id" required>
+                    <select class="form-select @error('city_id') is-invalid @enderror" id="city_id" name="city_id">
                         <option value="">Select City</option>
                         @foreach($cities as $city)
-                            <option value="{{ $city->id }}">{{ $city->name }}</option>
+                            <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>
+                                {{ $city->name }}
+                            </option>
                         @endforeach
                     </select>
+                    @error('city_id')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
+
                 <div class="mb-3">
                     <label for="cinema_name" class="form-label">Cinema Name</label>
-                    <input type="text" class="form-control" id="cinema_name" name="cinema_name" required>
+                    <input type="text" class="form-control @error('cinema_name') is-invalid @enderror" id="cinema_name" name="cinema_name" value="{{ old('cinema_name') }}">
+                    @error('cinema_name')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
+
                 <div class="mb-3">
                     <label for="cinema_address" class="form-label">Cinema Address</label>
-                    <input type="text" class="form-control" id="cinema_address" name="cinema_address" required>
+                    <input type="text" class="form-control @error('cinema_address') is-invalid @enderror" id="cinema_address" name="cinema_address" value="{{ old('cinema_address') }}">
+                    @error('cinema_address')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
                 <button type="submit" class="btn btn-primary">Add Cinema</button>
             </form>
         </div>
 
         <div class="d-flex">
-            <div class="city-list" style="width: 200px; background-color: #333; color: white; padding: 20px;">
+            <div class="city-list" style="width: 250px; background-color: #333; color: white; padding: 20px;">
                 <h4 style="color: white;">City:</h4>
                 <select id="city-select" onchange="showCinemas(this.value)" style="width: 100%; padding: 5px; background-color: #333; color: white; border: none;">
                     @foreach($cities as $city)

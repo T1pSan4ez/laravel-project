@@ -9,6 +9,12 @@ class Session extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'movie_id',
+        'hall_id',
+        'start_time',
+    ];
+
     public function movie()
     {
         return $this->belongsTo(Movie::class);

@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\MovieAdminController;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TheaterAdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -29,8 +30,14 @@ Route::get('/admin-panel', function () {
 
 Route::get('/admin-panel/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/admin-panel/movies', [MovieAdminController::class, 'index'])->name('movies');
-Route::post('/admin-panel/movies', [MovieAdminController::class, 'store'])->name('movies.store');
+Route::prefix('/admin-panel/movies')->group(function () {
+    Route::get('/', [MovieAdminController::class, 'index'])->name('movies');
+    Route::post('/', [MovieAdminController::class, 'store'])->name('movies.store');
+    Route::get('/edit/{id}', [MovieAdminController::class, 'edit'])->name('movies.edit');
+    Route::put('/{id}', [MovieAdminController::class, 'update'])->name('movies.update');
+    Route::delete('/{id}', [MovieAdminController::class, 'destroy'])->name('movies.destroy');
+    Route::get('/search', [MovieAdminController::class, 'search'])->name('movies.search');
+});
 
 Route::get('/admin-panel/theater-plays', [TheaterAdminController::class, 'index'])->name('theater-plays');
 
@@ -48,5 +55,10 @@ Route::get('/admin-panel/cinema/{cinema_id}/halls/{hall_id}/edit', [HallControll
 Route::post('/admin-panel/cinema/{cinema_id}/halls/{hall_id}/update-seats', [HallController::class, 'updateSeats'])->name('halls.updateSeats');
 Route::post('/admin-panel/cinema/{cinema_id}/halls/{hall_id}/clear-seats', [HallController::class, 'clearSeats'])->name('halls.clearSeats');
 
+Route::prefix('/admin-panel/sessions')->group(function () {
+    Route::get('/', [SessionController::class, 'index'])->name('sessions');
+    Route::post('/', [SessionController::class, 'store'])->name('sessions.store');
+    Route::get('/search', [SessionController::class, 'search'])->name('sessions.search');
+});
 
 Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');

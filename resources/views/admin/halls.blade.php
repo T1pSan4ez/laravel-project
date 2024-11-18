@@ -12,12 +12,15 @@
         @endif
 
         <div class="mb-4">
-            <h5>Add New Hall</h5>
+            <h5>Add new hall</h5>
             <form action="{{ route('halls.store', ['cinema_id' => $cinema->id]) }}" method="POST">
                 @csrf
                 <div class="mb-3">
-                    <label for="hall_name" class="form-label">Hall Name</label>
-                    <input type="text" class="form-control" id="hall_name" name="name" required>
+                    <label for="hall_name" class="form-label">Hall name</label>
+                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="hall_name" name="name" value="{{ old('name') }}">
+                    @error('name')
+                    <div class="text-danger">{{ $message }}</div>
+                    @enderror
                 </div>
                 <button type="submit" class="btn btn-primary">Add Hall</button>
             </form>
