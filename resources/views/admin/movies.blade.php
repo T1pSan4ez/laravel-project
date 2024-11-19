@@ -70,7 +70,7 @@
                             @foreach($movies as $movie)
                                 <tr>
                                     <td class="px-3 py-2">{{ $movie->title }}</td>
-                                    <td class="px-3 py-2">{{ Str::limit($movie->description, 100) }}</td>
+                                    <td class="px-3 py-2">{{ Str::limit($movie->description, 75, '...') }}</td>
                                     <td class="px-3 py-2 text-center">
                                         <a href="{{ route('movies.edit', $movie->id) }}" class="btn btn-warning btn-sm">Edit</a>
                                         <form action="{{ route('movies.destroy', $movie->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this movie?');">
@@ -121,3 +121,22 @@
         });
     });
 </script>
+
+<style>
+    table {
+        table-layout: fixed;
+        width: 100%;
+    }
+    th, td {
+        word-wrap: break-word;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    th {
+        width: 33.33%;
+    }
+    td {
+        max-width: 75px;
+    }
+</style>

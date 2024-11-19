@@ -24,7 +24,8 @@ class SessionRequest extends FormRequest
         return [
             'movie_id' => 'required|exists:movies,id',
             'hall_id' => 'required|exists:halls,id',
-            'start_time' => 'required|date',
+            'start_time' => 'required|date|after:now',
+            'technical_break' => 'integer|min:10',
         ];
     }
 
@@ -33,10 +34,10 @@ class SessionRequest extends FormRequest
         return [
             'movie_id.required' => 'Movie selection is required.',
             'movie_id.exists' => 'The selected movie does not exist.',
-            'hall_id.required' => 'You must select a hall.',
+            'hall_id.required' => 'The hall is required.',
             'hall_id.exists' => 'The selected hall does not exist.',
             'start_time.required' => 'Start time is required.',
-            'start_time.date' => 'Start time must be a valid date and time.',
+            'technical_break.min' => 'Technical break must be at least 10 minutes.',
         ];
     }
 

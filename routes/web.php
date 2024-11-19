@@ -59,6 +59,9 @@ Route::prefix('/admin-panel/sessions')->group(function () {
     Route::get('/', [SessionController::class, 'index'])->name('sessions');
     Route::post('/', [SessionController::class, 'store'])->name('sessions.store');
     Route::get('/search', [SessionController::class, 'search'])->name('sessions.search');
+    Route::get('/{id}/edit', [SessionController::class, 'edit'])->name('sessions.edit');
+    Route::put('/{id}', [SessionController::class, 'update'])->name('sessions.update');
+    Route::delete('/{id}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 });
 
 Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');
