@@ -2,7 +2,6 @@
 @section('title', 'Manage Sessions')
 @section('content')
     <div class="container mt-3">
-        <h2>Manage Sessions</h2>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

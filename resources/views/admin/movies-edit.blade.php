@@ -2,7 +2,6 @@
 @section('title', 'Edit Movie')
 @section('content')
     <div class="container mt-3">
-        <h2>Edit Movie</h2>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

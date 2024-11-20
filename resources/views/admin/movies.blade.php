@@ -1,8 +1,8 @@
 @extends('layouts.main')
 @section('title', 'Manage Movies')
 @section('content')
+
     <div class="container mt-3">
-        <h2>Manage Movies</h2>
 
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>

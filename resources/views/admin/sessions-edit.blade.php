@@ -2,7 +2,6 @@
 @section('title', 'Edit Session')
 @section('content')
     <div class="container mt-3">
-        <h3>Edit Session</h3>
 
         @if(session('success'))
             <div class="alert alert-success">
