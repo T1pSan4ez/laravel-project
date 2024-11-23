@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\api\ApiAuthController;
+use App\Http\Controllers\api\ApiCinemaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +19,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/city', [ApiCinemaController::class, 'index']);
+
+
+Route::middleware('web')->group(function () {
+    Route::post('/login', [ApiAuthController::class, 'login']);
+
+});
+
+Route::middleware('auth:sanctum')->post('/logout', [ApiAuthController::class, 'logout']);
