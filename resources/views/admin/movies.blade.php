@@ -19,7 +19,7 @@
 
         <div class="tab-content mt-4">
             <div class="tab-pane fade show active" id="add">
-                <form action="{{ route('movies.store') }}" method="POST">
+                <form action="{{ route('movies.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
@@ -40,6 +40,11 @@
                         <label for="release_date" class="form-label">Release Date</label>
                         <input type="date" class="form-control  @error('release_date') is-invalid @enderror" id="release_date" name="release_date" value="{{ old('release_date') }}">
                         @error('release_date') <div class="text-danger">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="poster" class="form-label">Poster</label>
+                        <input type="file" class="form-control  @error('poster') is-invalid @enderror" id="poster" name="poster" accept="image/*">
+                        @error('poster') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
                     <button type="submit" class="btn btn-primary">Add Movie</button>
                 </form>

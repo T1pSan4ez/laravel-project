@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->integer('duration');
-            $table->string('age_rating')->nullable(); // Рейтинг фильма (например, возрастной)
+            $table->string('age_rating')->nullable();
             $table->string('genre')->nullable();
             $table->date('release_date')->nullable();
             $table->timestamps();

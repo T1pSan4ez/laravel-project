@@ -3,34 +3,47 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ApiAuthController extends Controller
 {
-    public function login(Request $request)
+    public function register(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $validateUser = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
-
-        if (Auth::attempt($credentials)) {
-
-            $request->session()->regenerate();
-            return response()->json(['message' => 'Login successful']);
+        if ($validateUser->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validateUser->errors(),
+            ], 422);
         }
 
-        return response()->json(['error' => 'Invalid credentials'], 401);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'token' => $user->createToken('API Token')->plainTextToken,
+        ], 201);
+    }
+
+    public function login(Request $request)
+    {
+
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logout successful']);
     }
 }

@@ -28,6 +28,7 @@ class StoreMovieRequest extends FormRequest
             'age_rating' => 'nullable|string|max:255',
             'genre' => 'nullable|string|max:255',
             'release_date' => 'nullable|date',
+            'poster' => 'nullable|image|max:2048',
         ];
     }
 
@@ -40,6 +41,7 @@ class StoreMovieRequest extends FormRequest
             'duration.required' => 'The duration field is required.',
             'duration.integer' => 'The duration must be an integer.',
             'release_date.date' => 'The release date must be a valid date.',
+            ''
         ];
     }
 }

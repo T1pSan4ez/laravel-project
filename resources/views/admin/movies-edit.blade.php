@@ -7,7 +7,7 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        <form action="{{ route('movies.update', $movie->id) }}" method="POST">
+        <form action="{{ route('movies.update', $movie->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -61,6 +61,25 @@
                     value="{{ old('release_date', $movie->release_date) }}"
                 >
                 @error('release_date')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="poster" class="form-label">Poster</label>
+                <input
+                    type="file"
+                    class="form-control @error('poster') is-invalid @enderror"
+                    id="poster"
+                    name="poster"
+                    accept="image/*"
+                >
+                @if($movie->poster)
+                    <div class="mt-2">
+                        <img src="{{ asset('storage/' . $movie->poster) }}" alt="Movie Poster" style="width: 150px;">
+                    </div>
+                @endif
+                @error('poster')
                 <div class="text-danger mt-1">{{ $message }}</div>
                 @enderror
             </div>
