@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\ApiAuthController;
 use App\Http\Controllers\api\ApiCinemaController;
 use App\Http\Controllers\api\ApiMovieController;
+use App\Http\Controllers\api\ApiSessionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/cities', [ApiCinemaController::class, 'index']);
 Route::get('/movies', [ApiMovieController::class, 'index']);
+Route::get('/sessions', [ApiMovieController::class, 'index']);
+Route::get('/sessions/{id}', [ApiSessionController::class, 'show']);
 
 Route::middleware('web')->group(function () {
     Route::post('/login', [ApiAuthController::class, 'login']);

@@ -41,7 +41,7 @@ class StoreMovieRequest extends FormRequest
             'duration.required' => 'The duration field is required.',
             'duration.integer' => 'The duration must be an integer.',
             'release_date.date' => 'The release date must be a valid date.',
-            ''
+            'poster.max' => 'The poster must not exceed 2048 bytes.',
         ];
     }
 }

@@ -26,4 +26,9 @@ class Session extends Model
     {
         return $this->belongsTo(Hall::class);
     }
+
+    public function slots()
+    {
+        return $this->hasManyThrough(Slot::class, Hall::class, 'id', 'hall_id', 'hall_id', 'id');
+    }
 }
