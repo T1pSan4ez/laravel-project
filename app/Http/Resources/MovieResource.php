@@ -27,6 +27,12 @@ class MovieResource extends JsonResource
                     'hall_id' => $session->hall_id,
                 ];
             }),
+            'genres' => $this->genres->map(function ($genre) {
+                return [
+                    'id' => $genre->id,
+                    'name' => $genre->name,
+                ];
+            }),
         ];
     }
 }

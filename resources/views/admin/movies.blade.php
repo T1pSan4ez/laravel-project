@@ -42,6 +42,20 @@
                         @error('release_date') <div class="text-danger">{{ $message }}</div> @enderror
                     </div>
                     <div class="mb-3">
+                        <label for="age_rating" class="form-label">Age Rating</label>
+                        <input type="text" class="form-control @error('age_rating') is-invalid @enderror" id="age_rating" name="age_rating" value="{{ old('age_rating') }}">
+                        @error('age_rating') <div class="text-danger">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="genres" class="form-label">Genres</label>
+                        <select class="form-control @error('genres') is-invalid @enderror" id="genres" name="genres[]" multiple>
+                            @foreach($genres as $genre)
+                                <option value="{{ $genre->id }}" {{ collect(old('genres'))->contains($genre->id) ? 'selected' : '' }}>{{ $genre->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('genres') <div class="text-danger">{{ $message }}</div> @enderror
+                    </div>
+                    <div class="mb-3">
                         <label for="poster" class="form-label">Poster</label>
                         <input type="file" class="form-control  @error('poster') is-invalid @enderror" id="poster" name="poster" accept="image/*">
                         @error('poster') <div class="text-danger">{{ $message }}</div> @enderror

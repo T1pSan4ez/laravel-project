@@ -21,7 +21,14 @@ class SessionResource extends JsonResource
                 'title' => $this->movie->title,
                 'description' => $this->movie->description,
                 'duration' => $this->movie->duration,
+                'age_rating' => $this->movie->age_rating,
                 'poster' => $this->movie->poster ? asset('storage/' . $this->movie->poster) : null,
+                'genres' => $this->movie->genres->map(function ($genre) {
+                    return [
+                        'id' => $genre->id,
+                        'name' => $genre->name,
+                    ];
+                }),
             ],
             'hall' => [
                 'id' => $this->hall->id,

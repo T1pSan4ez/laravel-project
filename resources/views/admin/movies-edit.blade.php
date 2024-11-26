@@ -66,6 +66,39 @@
             </div>
 
             <div class="mb-3">
+                <label for="age_rating" class="form-label">Age Rating</label>
+                <input
+                    type="text"
+                    class="form-control @error('age_rating') is-invalid @enderror"
+                    id="age_rating"
+                    name="age_rating"
+                    value="{{ old('age_rating', $movie->age_rating) }}"
+                >
+                @error('age_rating')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="genres" class="form-label">Genres</label>
+                <select
+                    class="form-control @error('genres') is-invalid @enderror"
+                    id="genres"
+                    name="genres[]"
+                    multiple
+                >
+                    @foreach($genres as $genre)
+                        <option value="{{ $genre->id }}" {{ $movie->genres->contains($genre->id) ? 'selected' : '' }}>
+                            {{ $genre->name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('genres')
+                <div class="text-danger mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
                 <label for="poster" class="form-label">Poster</label>
                 <input
                     type="file"

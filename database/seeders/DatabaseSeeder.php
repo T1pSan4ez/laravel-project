@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
 //            CitiesSeeder::class,
 //            CinemasSeeder::class,
 //            HallsSeeder::class,
-            UserSeeder::class,
+//            UserSeeder::class,
+//            GenreSeeder::class
         ]);
     }
 }

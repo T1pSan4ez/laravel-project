@@ -25,8 +25,9 @@ class StoreMovieRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'duration' => 'required|integer',
-            'age_rating' => 'nullable|string|max:255',
-            'genre' => 'nullable|string|max:255',
+            'age_rating' => 'nullable|integer|max:23',
+            'genres' => 'nullable|array',
+            'genres.*' => 'exists:genres,id',
             'release_date' => 'nullable|date',
             'poster' => 'nullable|image|max:2048',
         ];
@@ -40,8 +41,11 @@ class StoreMovieRequest extends FormRequest
             'description.required' => 'The description field is required.',
             'duration.required' => 'The duration field is required.',
             'duration.integer' => 'The duration must be an integer.',
+            'age_rating.integer' => 'Age must be integer.',
+            'age_rating.max' => 'Age must not exceed 23.',
             'release_date.date' => 'The release date must be a valid date.',
             'poster.max' => 'The poster must not exceed 2048 bytes.',
+            'genres.*.exists' => 'One or more selected genres do not exist.',
         ];
     }
 }
