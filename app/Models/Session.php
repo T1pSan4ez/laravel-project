@@ -31,4 +31,9 @@ class Session extends Model
     {
         return $this->hasManyThrough(Slot::class, Hall::class, 'id', 'hall_id', 'hall_id', 'id');
     }
+
+    public function sessionSlots()
+    {
+        return $this->hasMany(SessionSlot::class, 'session_id');
+    }
 }

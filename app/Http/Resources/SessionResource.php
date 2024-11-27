@@ -45,12 +45,14 @@ class SessionResource extends JsonResource
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'slots' => $this->slots->map(function ($slot) {
+                $sessionSlot = $this->sessionSlots->firstWhere('slot_id', $slot->id);
                 return [
                     'id' => $slot->id,
                     'row' => $slot->row,
                     'number' => $slot->number,
                     'price' => $slot->price,
                     'type' => $slot->type,
+                    'status' => $sessionSlot ? $sessionSlot->status : null,
                 ];
             }),
         ];

@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
 //            HallsSeeder::class,
 //            UserSeeder::class,
 //            GenreSeeder::class
+//            SessionSlotSeeder::class,
         ]);
     }
 }

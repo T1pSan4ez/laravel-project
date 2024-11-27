@@ -4,6 +4,7 @@ use App\Http\Controllers\api\ApiAuthController;
 use App\Http\Controllers\api\ApiCinemaController;
 use App\Http\Controllers\api\ApiMovieController;
 use App\Http\Controllers\api\ApiSessionController;
+use App\Http\Controllers\api\SessionSlotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ Route::get('/cities', [ApiCinemaController::class, 'index']);
 Route::get('/movies', [ApiMovieController::class, 'index']);
 Route::get('/sessions', [ApiMovieController::class, 'index']);
 Route::get('/sessions/{id}', [ApiSessionController::class, 'show']);
+Route::patch('/session-slots/{session_id}', [SessionSlotController::class, 'updateStatuses']);
 
 Route::middleware('web')->group(function () {
     Route::post('/login', [ApiAuthController::class, 'login']);

@@ -122,6 +122,8 @@ class SessionController extends Controller
             return redirect()->back()->withErrors(['start_time' => 'There is already a session scheduled in this hall during the selected time.'])->withInput();
         }
 
+        $hallChanged = $data['hall_id'] !== $session->hall_id;
+
         $session->update([
             'movie_id' => $data['movie_id'],
             'hall_id' => $data['hall_id'],
@@ -129,6 +131,19 @@ class SessionController extends Controller
             'end_time' => $endTime,
             'technical_break' => $technicalBreak,
         ]);
+
+        if ($hallChanged) {
+            $session->sessionSlots()->delete();
+
+            $slots = $session->hall->slots;
+
+            foreach ($slots as $slot) {
+                $session->sessionSlots()->create([
+                    'slot_id' => $slot->id,
+                    'status' => 'available',
+                ]);
+            }
+        }
 
         return redirect()->route('sessions')->with('success', 'Session updated successfully.');
     }

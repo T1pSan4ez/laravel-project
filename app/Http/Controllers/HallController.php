@@ -77,8 +77,7 @@ class HallController extends Controller
                 for ($number = 1; $number <= $columns; $number++) {
                     $virtualSeats[] = (object) [
                         'row' => $row,
-                        'number' => $number,
-                        'is_available' => true,
+                        'number' => $number
                     ];
                 }
             }
@@ -120,7 +119,6 @@ class HallController extends Controller
                     'number' => $seat['number'],
                     'type' => $seat['type'],
                     'price' => $seat['price'],
-                    'is_available' => true,
                 ];
             }
         }
