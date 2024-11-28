@@ -58,7 +58,7 @@ class SessionController extends Controller
             return redirect()->back()->withErrors(['start_time' => 'There is already a session scheduled in this hall during the selected time.'])->withInput();
         }
 
-        Session::create([
+        $session = Session::create([
             'movie_id' => $data['movie_id'],
             'hall_id' => $data['hall_id'],
             'start_time' => $startTime,
@@ -66,8 +66,17 @@ class SessionController extends Controller
             'technical_break' => $technicalBreak,
         ]);
 
+        $slots = $session->hall->slots;
+        foreach ($slots as $slot) {
+            $session->sessionSlots()->create([
+                'slot_id' => $slot->id,
+                'status' => 'available',
+            ]);
+        }
+
         return redirect()->route('sessions')->with('success', 'Session created successfully.');
     }
+
 
     public function search(Request $request)
     {
@@ -133,15 +142,16 @@ class SessionController extends Controller
         ]);
 
         if ($hallChanged) {
-            $session->sessionSlots()->delete();
+            $existingSlotIds = $session->sessionSlots->pluck('slot_id')->toArray();
 
-            $slots = $session->hall->slots;
-
-            foreach ($slots as $slot) {
-                $session->sessionSlots()->create([
-                    'slot_id' => $slot->id,
-                    'status' => 'available',
-                ]);
+            $allHallSlots = $session->hall->slots;
+            foreach ($allHallSlots as $slot) {
+                if (!in_array($slot->id, $existingSlotIds)) {
+                    $session->sessionSlots()->create([
+                        'slot_id' => $slot->id,
+                        'status' => 'available',
+                    ]);
+                }
             }
         }
 

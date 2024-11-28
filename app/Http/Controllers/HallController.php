@@ -104,12 +104,40 @@ class HallController extends Controller
         $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
         $selectedSeats = json_decode($request->input('selected_seats'), true);
 
-        $existingSeats = $hall->slots()->get(['row', 'number', 'type', 'price'])->toArray();
+        $existingSlots = $hall->slots()->get();
+
+        $slotsToDelete = [];
         $seatsToAdd = [];
+        $bookedSlots = [];
+
+        foreach ($existingSlots as $slot) {
+            $isInSelected = collect($selectedSeats)->first(function ($seat) use ($slot) {
+                return $seat['row'] == $slot->row && $seat['number'] == $slot->number;
+            });
+
+            if (!$isInSelected) {
+
+                if ($slot->sessionSlots()->where('status', 'booked')->exists()) {
+                    $bookedSlots[] = [
+                        'id' => $slot->id,
+                        'row' => $slot->row,
+                        'number' => $slot->number,
+                    ];
+                } else {
+                    $slotsToDelete[] = $slot->id;
+                }
+            }
+        }
+
+        if (!empty($bookedSlots)) {
+            return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
+
+                ->with('bookedSlots', $bookedSlots);
+        }
 
         foreach ($selectedSeats as $seat) {
-            $exists = collect($existingSeats)->firstWhere(function ($existingSeat) use ($seat) {
-                return $existingSeat['row'] == $seat['row'] && $existingSeat['number'] == $seat['number'];
+            $exists = $existingSlots->first(function ($slot) use ($seat) {
+                return $slot->row == $seat['row'] && $slot->number == $seat['number'];
             });
 
             if (!$exists) {
@@ -123,34 +151,55 @@ class HallController extends Controller
             }
         }
 
-        foreach ($existingSeats as $existingSeat) {
-            $found = collect($selectedSeats)->firstWhere(function ($seat) use ($existingSeat) {
-                return $seat['row'] == $existingSeat['row'] && $seat['number'] == $existingSeat['number'];
+        if (!empty($slotsToDelete)) {
+            Slot::whereIn('id', $slotsToDelete)->each(function ($slot) {
+                $slot->sessionSlots()->delete();
+                $slot->delete();
             });
-
-            if (!$found) {
-                $hall->slots()
-                    ->where('row', $existingSeat['row'])
-                    ->where('number', $existingSeat['number'])
-                    ->delete();
-            }
         }
 
         if (!empty($seatsToAdd)) {
             $hall->slots()->insert($seatsToAdd);
+
+            $newSlots = $hall->slots()->whereIn('row', array_column($seatsToAdd, 'row'))
+                ->whereIn('number', array_column($seatsToAdd, 'number'))
+                ->get();
+
+            foreach ($newSlots as $slot) {
+                foreach ($hall->sessions as $session) {
+                    $session->sessionSlots()->create([
+                        'slot_id' => $slot->id,
+                        'status' => 'available',
+                    ]);
+                }
+            }
         }
 
         return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
             ->with('success', 'Hall configuration updated successfully.');
     }
 
-    public function clearSeats($cinema_id, $hall_id)
+    public function clearSeats(Request $request, $cinema_id, $hall_id)
     {
         $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
 
+        $bookedSlots = $hall->slots()->whereHas('sessionSlots', function ($query) {
+            $query->where('status', 'booked');
+        })->get();
+
+        if ($bookedSlots->isNotEmpty() && !$request->has('confirm')) {
+            return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
+                ->with('confirm', true);
+        }
+
         $hall->slots()->delete();
+
+        $hall->sessions()->each(function ($session) {
+            $session->sessionSlots()->delete();
+        });
 
         return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
             ->with('success', 'Hall seats cleared successfully.');
     }
+
 }

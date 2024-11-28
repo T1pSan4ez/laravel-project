@@ -23,6 +23,6 @@ class Hall extends Model
 
     public function sessions()
     {
-        return $this->hasOne(Session::class);
+        return $this->hasMany(Session::class, 'hall_id');
     }
 }

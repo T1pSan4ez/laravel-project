@@ -154,6 +154,7 @@
                     <table class="table table-bordered mt-3">
                         <thead class="table-light">
                         <tr>
+                            <th class="px-3 py-2">ID</th>
                             <th class="px-3 py-2">City</th>
                             <th class="px-3 py-2">Cinema</th>
                             <th class="px-3 py-2">Hall</th>
@@ -166,6 +167,7 @@
                         <tbody>
                         @foreach($sessions as $session)
                             <tr>
+                                <td class="px-3 py-2">{{ $session->id }}</td>
                                 <td class="px-3 py-2">{{ $session->hall->cinema->city->name }}</td>
                                 <td class="px-3 py-2">{{ $session->hall->cinema->name }}</td>
                                 <td class="px-3 py-2">{{ $session->hall->name }}</td>

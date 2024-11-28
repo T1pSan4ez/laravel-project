@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Events\BookingSlots;
 use App\Http\Controllers\Controller;
 use App\Models\SessionSlot;
 use Illuminate\Http\Request;
@@ -32,6 +33,8 @@ class SessionSlotController extends Controller
                 ];
             }
         }
+
+        event(new BookingSlots($updatedSlots));
 
         return response()->json([
             'message' => 'Statuses updated successfully',
