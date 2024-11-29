@@ -8,7 +8,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TheaterAdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\ProductController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -60,6 +60,16 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [SessionController::class, 'update'])->name('sessions.update');
         Route::delete('/{id}', [SessionController::class, 'destroy'])->name('sessions.destroy');
     });
+
+    Route::prefix('/admin-panel/products')->group(function () {
+        Route::get('/', [ProductController::class, 'index'])->name('products');
+        Route::get('/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+        Route::post('/', [ProductController::class, 'store'])->name('products.store');
+        Route::put('/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    });
+
+
 
     Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');
 });

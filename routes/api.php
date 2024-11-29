@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\ApiAuthController;
 use App\Http\Controllers\api\ApiCinemaController;
 use App\Http\Controllers\api\ApiMovieController;
+use App\Http\Controllers\api\ApiProductController;
 use App\Http\Controllers\api\ApiSessionController;
 use App\Http\Controllers\api\SessionSlotController;
 use Illuminate\Http\Request;
@@ -24,9 +25,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/cities', [ApiCinemaController::class, 'index']);
-Route::get('/movies', [ApiMovieController::class, 'index']);
+Route::get('/movies/{cinemaId}', [ApiMovieController::class, 'index']);
 Route::get('/sessions', [ApiMovieController::class, 'index']);
-Route::get('/sessions/{id}', [ApiSessionController::class, 'show']);
+Route::get('/sessions/{id}', [ApiSessionController::class, 'index']);
+Route::get('/products', [ApiProductController::class, 'index']);
 Route::patch('/session-slots/{session_id}', [SessionSlotController::class, 'updateStatuses']);
 
 Route::middleware('web')->group(function () {

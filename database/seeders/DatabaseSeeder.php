@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
 //            UserSeeder::class,
 //            GenreSeeder::class
 //            SessionSlotSeeder::class,
+//        ProductsSeeder::class
         ]);
     }
 }

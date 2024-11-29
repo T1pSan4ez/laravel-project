@@ -21,24 +21,27 @@
         <h3 class="text-center">Admin Panel</h3>
         <ul class="nav flex-column mt-4">
 
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('dashboard') }}">Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('movies') }}">Movies</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('theater-plays') }}">Theater Plays</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('cinemas') }}">Cinemas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('sessions') }}">Sessions</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('users') }}">Users</a>
-                </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('dashboard') }}">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('movies') }}">Movies</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('theater-plays') }}">Theater Plays</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('cinemas') }}">Cinemas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('sessions') }}">Sessions</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('products') }}">Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('users') }}">Users</a>
+            </li>
         </ul>
     </nav>
 
@@ -47,7 +50,7 @@
             <div class="container-fluid d-flex justify-content-between align-content-center ">
                 <span class="navbar-brand">@yield('title')</span>
                 @guest
-                <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Login</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Login</a>
                 @endguest
                 @auth()
                     <a href="#" class="btn btn-primary btn-sm"
