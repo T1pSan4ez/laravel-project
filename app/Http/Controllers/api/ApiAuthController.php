@@ -32,18 +32,42 @@ class ApiAuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return response()->json([
-            'token' => $user->createToken('API Token')->plainTextToken,
-        ], 201);
+        $token = $user->createToken('API Token')->plainTextToken;
+
+        return response()->json(['token' => $token]);
     }
 
     public function login(Request $request)
     {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:8',
+        ]);
 
+        if (!Auth::attempt($request->only('email', 'password'), $request->has('remember'))) {
+            return response()->json([
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        $user = Auth::user();
+
+        $token = $user->createToken('API Token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => $user,
+        ]);
     }
 
     public function logout(Request $request)
     {
+        $request->user()->currentAccessToken()->delete();
 
+        $request->user()->update(['remember_token' => null]);
+
+        return response()->json([
+            'message' => 'Successfully logged out',
+        ])->withCookie(cookie()->forget('remember_web', '/', '.example.camelot'));
     }
 }

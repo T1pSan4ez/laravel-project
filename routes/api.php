@@ -34,6 +34,7 @@ Route::patch('/session-slots/{session_id}', [SessionSlotController::class, 'upda
 Route::middleware('web')->group(function () {
     Route::post('/login', [ApiAuthController::class, 'login']);
     Route::post('/register', [ApiAuthController::class, 'register']);
+
 });
 
 Route::middleware('auth:sanctum')->post('/logout', [ApiAuthController::class, 'logout']);
