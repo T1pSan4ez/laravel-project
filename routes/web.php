@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\HallController;
@@ -24,6 +25,11 @@ use App\Http\Controllers\ProductController;
 Route::get('/', function () {
     return view('layouts.main');
 });
+
+
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin-panel/dashboard', [DashboardController::class, 'index'])->name('dashboard');
