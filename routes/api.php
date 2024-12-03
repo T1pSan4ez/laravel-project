@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApiAuthController;
 use App\Http\Controllers\Api\ApiCinemaController;
 use App\Http\Controllers\Api\ApiMovieController;
+use App\Http\Controllers\Api\ApiMovieDiscoverController;
 use App\Http\Controllers\Api\ApiPaymentController;
 use App\Http\Controllers\Api\ApiProductController;
 use App\Http\Controllers\Api\ApiSessionController;
@@ -29,10 +30,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/cities', [ApiCinemaController::class, 'index']);
 Route::get('/movies/{cinemaId}', [ApiMovieController::class, 'index']);
 Route::get('/sessions', [ApiMovieController::class, 'index']);
+
 Route::get('/sessions/{id}', [ApiSessionController::class, 'index']);
 Route::get('/products', [ApiProductController::class, 'index']);
 Route::patch('/session-slots/{session_id}', [SessionSlotController::class, 'updateStatuses']);
 Route::post('/payments', [ApiPaymentController::class, 'store']);
+
+Route::get('/movies', [ApiMovieDiscoverController::class, 'index']);
+Route::get('/movie/{id}', [ApiMovieDiscoverController::class, 'show']);
+Route::get('/genres', [ApiMovieDiscoverController::class, 'genres']);
 
 Route::middleware('web')->group(function () {
     Route::post('/login', [ApiAuthController::class, 'login']);
