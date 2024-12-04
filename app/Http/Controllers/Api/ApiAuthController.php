@@ -52,7 +52,7 @@ class ApiAuthController extends Controller
 
         $user = Auth::user();
 
-        $token = $user->createToken('API Token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'token' => $token,
@@ -70,4 +70,6 @@ class ApiAuthController extends Controller
             'message' => 'Successfully logged out',
         ])->withCookie(cookie()->forget('remember_web', '/', '.example.camelot'));
     }
+
+
 }

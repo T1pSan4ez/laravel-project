@@ -6,15 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Http\Request;
 
 class GoogleController extends Controller
 {
     public function redirectToGoogle()
     {
-        return Socialite::driver('google')->redirect();
+        $redirectUrl = Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
+
+        return response()->json(['url' => $redirectUrl]);
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
@@ -27,11 +30,14 @@ class GoogleController extends Controller
                 ]
             );
 
-            Auth::login($user);
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-            return redirect('/');
+            return redirect("http://localhost:5174/auth?token={$token}");
         } catch (\Exception $e) {
-            return redirect('/login')->withErrors('Error auth with Google.');
+            return response()->json([
+                'message' => 'Error authenticating with Google.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }

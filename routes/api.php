@@ -7,8 +7,10 @@ use App\Http\Controllers\Api\ApiMovieDiscoverController;
 use App\Http\Controllers\Api\ApiPaymentController;
 use App\Http\Controllers\Api\ApiProductController;
 use App\Http\Controllers\Api\ApiSessionController;
+use App\Http\Controllers\Api\ApiUserController;
 use App\Http\Controllers\Api\SessionSlotController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\QRCodeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,10 +45,22 @@ Route::get('/genres', [ApiMovieDiscoverController::class, 'genres']);
 Route::middleware('web')->group(function () {
     Route::post('/login', [ApiAuthController::class, 'login']);
     Route::post('/register', [ApiAuthController::class, 'register']);
-//    Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
-//    Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
+
+    Route::get('/auth/google/redirect', [GoogleController::class, 'redirectToGoogle']);
+    Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 });
 
-Route::middleware('auth:sanctum')->post('/logout', [ApiAuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [ApiUserController::class, 'show']);
+    Route::post('/user/profile', [ApiUserController::class, 'updateProfile']);
+    Route::post('/user/password', [ApiUserController::class, 'updatePassword']);
+
+    Route::get('/qr-token', [QRCodeController::class, 'generateToken'])->name('qr.token');
+
+    Route::post('/logout', [ApiAuthController::class, 'logout']);
+});
+
+Route::post('/login/qr', [QRCodeController::class, 'login']);
+
 
