@@ -57,7 +57,7 @@ class QRCodeController extends Controller
 
         $qrToken->delete();
 
-        $token = $user->createToken('API Token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',

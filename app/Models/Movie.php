@@ -25,4 +25,14 @@ class Movie extends Model
     {
         return $this->belongsToMany(Genre::class, 'genre_movie');
     }
+
+    public function comments()
+    {
+        return $this->belongsToMany(Comment::class, 'movie_comments');
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 }

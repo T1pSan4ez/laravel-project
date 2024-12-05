@@ -1,14 +1,16 @@
 <?php
 
-use App\Http\Controllers\Api\ApiAuthController;
 use App\Http\Controllers\Api\ApiCinemaController;
+use App\Http\Controllers\Api\ApiMovieCommentController;
 use App\Http\Controllers\Api\ApiMovieController;
 use App\Http\Controllers\Api\ApiMovieDiscoverController;
+use App\Http\Controllers\Api\ApiMovieRatingController;
 use App\Http\Controllers\Api\ApiPaymentController;
 use App\Http\Controllers\Api\ApiProductController;
 use App\Http\Controllers\Api\ApiSessionController;
 use App\Http\Controllers\Api\ApiUserController;
 use App\Http\Controllers\Api\SessionSlotController;
+use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\QRCodeController;
 use Illuminate\Http\Request;
@@ -51,12 +53,22 @@ Route::middleware('web')->group(function () {
     Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 });
 
+
+Route::get('movies/{movieId}/comments', [ApiMovieCommentController::class, 'index']);
+
+Route::get('movies/{movieId}/ratings', [ApiMovieRatingController::class, 'index']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [ApiUserController::class, 'show']);
     Route::post('/user/profile', [ApiUserController::class, 'updateProfile']);
     Route::post('/user/password', [ApiUserController::class, 'updatePassword']);
 
     Route::get('/qr-token', [QRCodeController::class, 'generateToken'])->name('qr.token');
+
+    Route::post('movies/{movieId}/comments', [ApiMovieCommentController::class, 'store']);
+    Route::delete('movies/comments/{comment}', [ApiMovieCommentController::class, 'destroy']);
+
+    Route::post('movies/{movieId}/ratings', [ApiMovieRatingController::class, 'store']);
 
     Route::post('/logout', [ApiAuthController::class, 'logout']);
 });
