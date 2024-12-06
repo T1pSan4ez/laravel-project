@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ApiProductController;
 use App\Http\Controllers\Api\ApiSessionController;
 use App\Http\Controllers\Api\ApiUserController;
 use App\Http\Controllers\Api\SessionSlotController;
+use App\Http\Controllers\Api\UserActivityController;
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\QRCodeController;
@@ -69,6 +70,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('movies/comments/{comment}', [ApiMovieCommentController::class, 'destroy']);
 
     Route::post('movies/{movieId}/ratings', [ApiMovieRatingController::class, 'store']);
+
+    Route::get('/user-activity', [UserActivityController::class, 'index']);
+    Route::post('/user-activity', [UserActivityController::class, 'store']);
+    Route::get('/user-activity/recommend-sessions', [UserActivityController::class, 'recommendSessions']);
 
     Route::post('/logout', [ApiAuthController::class, 'logout']);
 });
