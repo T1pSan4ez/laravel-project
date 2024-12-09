@@ -14,13 +14,16 @@ class DeleteBookedSlots implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    //public $queue = 'pencil';
     public $sessionSlotId;
+    public $slotId;
     /**
      * Create a new job instance.
      */
-    public function __construct($sessionSlotId)
+    public function __construct($sessionSlotId, $slotId)
     {
         $this->sessionSlotId = $sessionSlotId;
+        $this->slotId = $slotId;
     }
 
     /**
@@ -34,6 +37,7 @@ class DeleteBookedSlots implements ShouldQueue
             $slot->status = 'available';
             $slot->save();
 
+            event(new SlotStatusUpdated($this->slotId, $slot->status));
         }
     }
 }

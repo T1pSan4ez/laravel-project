@@ -31,7 +31,7 @@ class SessionSlotController extends Controller
                 $sessionSlot->save();
 
                 if ($slotData['status'] === 'booked') {
-                  DeleteBookedSlots::dispatch($sessionSlot->id)->delay(now()->addMinutes(1));
+                    DeleteBookedSlots::dispatch($sessionSlot->id, $slotData['slot_id'])->delay(now()->addMinutes(1));
                 }
 
                 $updatedSlots[] = [

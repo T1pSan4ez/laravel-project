@@ -11,9 +11,9 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class SlotStatusUpdated implements ShouldBroadcastNow
+class SlotStatusUpdated implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use  InteractsWithSockets, SerializesModels;
 
     public $slotId;
     public $status;
@@ -33,7 +33,7 @@ class SlotStatusUpdated implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'slot.status.updated';
+        return 'slot_status.sent';
     }
 
     public function broadcastWith(): array
