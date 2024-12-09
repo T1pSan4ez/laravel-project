@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWelcomeMail;
+use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ApiAuthController extends Controller
@@ -34,6 +37,8 @@ class ApiAuthController extends Controller
 
         $token = $user->createToken('API Token')->plainTextToken;
 
+
+        SendWelcomeMail::dispatch($user);
         return response()->json(['token' => $token]);
     }
 

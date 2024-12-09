@@ -78,6 +78,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [ApiAuthController::class, 'logout']);
 });
 
+Route::get('/test-event', function () {
+    event(new \App\Events\SlotStatusUpdated(1, 'available'));
+    return 'Event dispatched';
+});
+
 Route::post('/login/qr', [QRCodeController::class, 'login']);
 
 

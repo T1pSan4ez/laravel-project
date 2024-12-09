@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\BookingSlots;
+use App\Events\SlotStatusUpdated;
 use App\Http\Controllers\Controller;
+use App\Jobs\DeleteBookedSlots;
 use App\Models\SessionSlot;
 use Illuminate\Http\Request;
 
@@ -27,6 +29,11 @@ class SessionSlotController extends Controller
             if ($sessionSlot) {
                 $sessionSlot->status = $slotData['status'];
                 $sessionSlot->save();
+
+                if ($slotData['status'] === 'booked') {
+                  DeleteBookedSlots::dispatch($sessionSlot->id)->delay(now()->addMinutes(1));
+                }
+
                 $updatedSlots[] = [
                     'slot_id' => $sessionSlot->slot_id,
                     'status' => $sessionSlot->status,
