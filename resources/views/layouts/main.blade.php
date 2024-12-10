@@ -27,9 +27,9 @@
             <li class="nav-item">
                 <a class="nav-link text-white" href="{{ route('movies') }}">Movies</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link text-white" href="{{ route('theater-plays') }}">Theater Plays</a>
-            </li>
+{{--            <li class="nav-item">--}}
+{{--                <a class="nav-link text-white" href="{{ route('theater-plays') }}">Theater Plays</a>--}}
+{{--            </li>--}}
             <li class="nav-item">
                 <a class="nav-link text-white" href="{{ route('cinemas') }}">Cinemas</a>
             </li>
@@ -41,6 +41,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link text-white" href="{{ route('users') }}">Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ route('pdf.generator') }}">PDFs</a>
             </li>
         </ul>
     </nav>

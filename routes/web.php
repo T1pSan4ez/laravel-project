@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\MovieAdminController;
+use App\Http\Controllers\PDFController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\TheaterAdminController;
 use App\Http\Controllers\UserController;
@@ -39,7 +40,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/search', [MovieAdminController::class, 'search'])->name('movies.search');
     });
 
-    Route::get('/admin-panel/theater-plays', [TheaterAdminController::class, 'index'])->name('theater-plays');
+   //Route::get('/admin-panel/theater-plays', [TheaterAdminController::class, 'index'])->name('theater-plays');
 
     Route::get('/admin-panel/cinemas', [CinemaController::class, 'index'])->name('cinemas');
     Route::post('/admin/halls/add-city', [CinemaController::class, 'addCity'])->name('cinemas.addCity');
@@ -71,7 +72,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     });
 
-
+    Route::get('/admin-panel/pdf-generator', [PDFController::class, 'index'])->name('pdf.generator');
+    Route::post('/admin/generate-pdf', [PDFController::class, 'generatePDF'])->name('generate.pdf');
 
     Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');
 });

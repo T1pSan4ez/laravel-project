@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ApiPaymentController;
 use App\Http\Controllers\Api\ApiProductController;
 use App\Http\Controllers\Api\ApiSessionController;
 use App\Http\Controllers\Api\ApiUserController;
+use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\SessionSlotController;
 use App\Http\Controllers\Api\UserActivityController;
 use App\Http\Controllers\Auth\ApiAuthController;
@@ -78,10 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [ApiAuthController::class, 'logout']);
 });
 
-Route::get('/test-event', function () {
-    event(new \App\Events\SlotStatusUpdated(1, 'available'));
-    return 'Event dispatched';
-});
+Route::post('/purchases', [PurchaseController::class, 'store']);
 
 Route::post('/login/qr', [QRCodeController::class, 'login']);
 
