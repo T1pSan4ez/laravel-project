@@ -63,11 +63,11 @@
         </div>
 
         <div class="d-flex">
-            <div class="city-list" style="width: 250px; background-color: #333; color: white; padding: 20px;">
-                <h4 style="color: white;">City:</h4>
-                <select id="city-select" onchange="showCinemas(this.value)" style="width: 100%; padding: 5px; background-color: #333; color: white; border: none;">
+            <div class="city-list" style="width: 250px; background-color: #ffffff; color: #000000; padding: 20px;">
+                <h4 style="color: #000000;">City:</h4>
+                <select id="city-select" onchange="showCinemas(this.value)" style="width: 100%; padding: 5px; background-color: #ffffff; color: #000000; border: none;">
                     @foreach($cities as $city)
-                        <option value="{{ $city->id }}" style="color: white;">
+                        <option value="{{ $city->id }}" style="color: #000000;">
                             {{ $city->name }}
                         </option>
                     @endforeach

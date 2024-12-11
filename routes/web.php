@@ -72,8 +72,9 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     });
 
-    Route::get('/admin-panel/pdf-generator', [PDFController::class, 'index'])->name('pdf.generator');
-    Route::post('/admin/generate-pdf', [PDFController::class, 'generatePDF'])->name('generate.pdf');
+    Route::get('/admin/pdf-generator', [PDFController::class, 'index'])->name('pdf.form');
+    Route::post('/admin/pdf-preview', [PDFController::class, 'preview'])->name('pdf.preview');
+    Route::post('/admin/pdf-generate', [PDFController::class, 'generatePDF'])->name('pdf.generate');
 
     Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');
 });

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Purchase;
@@ -8,16 +7,52 @@ use Illuminate\Http\Request;
 
 class PDFController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $startDate = $request->query('start_date');
-        $endDate = $request->query('end_date');
+        return view('admin.pdf-generator');
+    }
 
-        $query = Purchase::with('items');
+    public function preview(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $isUser = $request->input('is_user');
+
+        $query = Purchase::query()->with('items.sessionSlot.session.movie');
 
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
+
+        if ($isUser === 'user') {
+            $query->whereNotNull('user_id');
+        } elseif ($isUser === 'guest') {
+            $query->whereNull('user_id');
+        }
+
+        $purchases = $query->get();
+
+        return response()->json(['purchases' => $purchases]);
+    }
+
+    public function generatePDF(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $isUser = $request->input('is_user');
+
+        $query = Purchase::query()->with('items.sessionSlot.session.movie');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        if ($isUser === 'user') {
+            $query->whereNotNull('user_id');
+        } elseif ($isUser === 'guest') {
+            $query->whereNull('user_id');
+        }
+
 
         $purchases = $query->get();
 
@@ -25,26 +60,15 @@ class PDFController extends Controller
             return $item->quantity * $item->price;
         });
 
-        // Разделение на группы User и Guest
-        $userPurchases = $purchases->whereNotNull('user_id');
-        $guestPurchases = $purchases->whereNull('user_id');
-
-        return view('admin.pdf-generator', compact('userPurchases', 'guestPurchases', 'totalEarnings', 'startDate', 'endDate'));
-    }
-
-    public function generatePDF(Request $request)
-    {
-        $selectedPurchases = Purchase::with('items')
-            ->whereIn('id', $request->input('selected_purchases', []))
-            ->get();
 
         $data = [
-            'title' => 'Admin Report',
-            'date' => date('m/d/Y'),
-            'purchases' => $selectedPurchases,
-            'totalEarnings' => $selectedPurchases->flatMap->items->sum(function ($item) {
-                return $item->quantity * $item->price;
-            }),
+            'title' => 'Purchase Report',
+            'date' => now()->format('m/d/Y'),
+            'purchases' => $purchases,
+            'totalEarnings' => $totalEarnings,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'isUser' => $isUser,
         ];
 
         $pdf = Pdf::loadView('pdf.admin-report', $data);

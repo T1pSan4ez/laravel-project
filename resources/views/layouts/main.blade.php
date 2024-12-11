@@ -43,7 +43,7 @@
                 <a class="nav-link text-white" href="{{ route('users') }}">Users</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white" href="{{ route('pdf.generator') }}">PDFs</a>
+                <a class="nav-link text-white" href="{{ route('pdf.form') }}">PDFs</a>
             </li>
         </ul>
     </nav>

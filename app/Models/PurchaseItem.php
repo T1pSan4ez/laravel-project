@@ -24,4 +24,9 @@ class PurchaseItem extends Model
     {
         return $this->belongsTo(Purchase::class, 'purchase_id');
     }
+
+    public function sessionSlot()
+    {
+        return $this->belongsTo(SessionSlot::class, 'slot_id');
+    }
 }

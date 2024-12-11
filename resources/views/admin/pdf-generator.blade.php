@@ -1,92 +1,76 @@
 @extends('layouts.main')
-@section('title', 'Generate PDF')
+@section('title', 'Generate PDF Report')
 @section('content')
-    <div class="container mt-4">
 
-        <form method="GET" action="{{ route('pdf.generator') }}" class="mb-4">
-            <div class="row">
-                <div class="col-md-4">
-                    <label for="start_date" class="form-label">Start Date:</label>
-                    <input type="date" name="start_date" id="start_date" class="form-control" value="{{ request('start_date') }}">
-                </div>
-                <div class="col-md-4">
-                    <label for="end_date" class="form-label">End Date:</label>
-                    <input type="date" name="end_date" id="end_date" class="form-control" value="{{ request('end_date') }}">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                </div>
+    <div class="container mt-3">
+        <form id="pdf-form" action="{{ route('pdf.generate') }}" method="POST" target="_blank">
+            @csrf
+            <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date">
             </div>
+            <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date">
+            </div>
+            <div class="mb-3">
+                <label for="is_user" class="form-label">User Type</label>
+                <select class="form-control" id="is_user" name="is_user">
+                    <option value="">All</option>
+                    <option value="user">Users</option>
+                    <option value="guest">Guests</option>
+                </select>
+            </div>
+
+            <button type="button" class="btn btn-secondary" onclick="previewPDF()">Preview</button>
+            <button type="submit" class="btn btn-primary">Generate PDF</button>
         </form>
 
-        <div class="mb-4">
-            <h3>Total Earnings: {{ number_format($totalEarnings, 2) }} UAH</h3>
-        </div>
 
-        <div class="mb-4">
-            <h3>User Purchases</h3>
-            <form method="POST" action="{{ route('generate.pdf') }}" target="_blank">
-                @csrf
-                <table class="table table-bordered">
-                    <thead>
-                    <tr>
-                        <th>Select</th>
-                        <th>Purchase Code</th>
-                        <th>User ID</th>
-                        <th>Total Items</th>
-                        <th>Total Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach ($userPurchases as $purchase)
-                        <tr>
-                            <td>
-                                <input type="checkbox" name="selected_purchases[]" value="{{ $purchase->id }}">
-                            </td>
-                            <td>{{ $purchase->purchase_code }}</td>
-                            <td>{{ $purchase->user_id }}</td>
-                            <td>{{ $purchase->items->count() }}</td>
-                            <td>
-                                {{ number_format($purchase->items->sum(function ($item) {
-                                    return $item->quantity * $item->price;
-                                }), 2) }} UAH
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-
-        <div class="mb-4">
-            <h3>Guest Purchases</h3>
-            <table class="table table-bordered">
+        <div class="mt-5">
+            <h3>Preview:</h3>
+            <table class="table table-bordered" id="preview-table" style="display: none;">
                 <thead>
                 <tr>
-                    <th>Select</th>
                     <th>Purchase Code</th>
+                    <th>User ID</th>
                     <th>Total Items</th>
                     <th>Total Cost</th>
                 </tr>
                 </thead>
-                <tbody>
-                @foreach ($guestPurchases as $purchase)
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="selected_purchases[]" value="{{ $purchase->id }}">
-                        </td>
-                        <td>{{ $purchase->purchase_code }}</td>
-                        <td>{{ $purchase->items->count() }}</td>
-                        <td>
-                            {{ number_format($purchase->items->sum(function ($item) {
-                                return $item->quantity * $item->price;
-                            }), 2) }} UAH
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
-
-        <button type="submit" class="btn btn-primary">Generate PDF</button>
-        </form>
     </div>
+
+    <script>
+        function previewPDF() {
+            const formData = new FormData(document.getElementById('pdf-form'));
+            fetch('{{ route('pdf.preview') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('preview-table');
+                    const tbody = table.querySelector('tbody');
+                    tbody.innerHTML = '';
+                    data.purchases.forEach(purchase => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                        <td>${purchase.purchase_code || 'N/A'}</td>
+                        <td>${purchase.user_id || 'Guest'}</td>
+                        <td>${purchase.items.length}</td>
+                        <td>${purchase.items.reduce((sum, item) => sum + (item.quantity * item.price), 0).toFixed(2)} UAH</td>
+                    `;
+                        tbody.appendChild(row);
+                    });
+                    table.style.display = 'table';
+                });
+        }
+    </script>
+
 @endsection
