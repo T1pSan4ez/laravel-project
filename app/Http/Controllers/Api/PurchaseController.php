@@ -23,7 +23,7 @@ class PurchaseController extends Controller
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.price' => 'required|numeric|min:0',
-            'items.*.slot_id' => 'nullable|integer|exists:session_slots,slot_id',
+            'items.*.slot_id' => 'nullable|integer',
             'items.*.product_id' => 'nullable|integer',
         ]);
 
@@ -32,22 +32,33 @@ class PurchaseController extends Controller
             'user_id' => $validatedData['user_id'] ?? null,
         ]);
 
+        $purchaseItems = [];
         foreach ($validatedData['items'] as $item) {
-            PurchaseItem::create([
+            $sessionSlot = null;
+
+            if (!empty($item['slot_id'])) {
+                $sessionSlot = SessionSlot::where('slot_id', $item['slot_id'])
+                    ->where('session_id', $validatedData['session_id'])
+                    ->first();
+
+                if ($sessionSlot) {
+                    $sessionSlot->update(['status' => 'paid']);
+                }
+            }
+
+            $purchaseItems[] = [
                 'purchase_id' => $purchase->id,
-                'slot_id' => $item['slot_id'] ?? null,
+                'slot_id' => $sessionSlot ? $sessionSlot->id : null,
                 'product_id' => $item['product_id'] ?? null,
                 'item_name' => $item['item_name'],
                 'quantity' => $item['quantity'],
                 'price' => $item['price'],
-            ]);
-
-            if (isset($item['slot_id'])) {
-                SessionSlot::where('slot_id', $item['slot_id'])
-                    ->where('session_id', $validatedData['session_id'])
-                    ->update(['status' => 'paid']);
-            }
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
+
+        PurchaseItem::insert($purchaseItems);
 
         Mail::to($validatedData['email'])->queue(new PurchaseMailer($purchase->load('items')));
 
@@ -56,6 +67,8 @@ class PurchaseController extends Controller
             'purchase' => $purchase->load('items'),
         ], 201);
     }
+
+
 
 
 }

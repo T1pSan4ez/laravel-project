@@ -9,40 +9,20 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        @if($errors->any())
+        @if(session('error'))
             <div class="alert alert-danger">
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                {{ session('error') }}
             </div>
         @endif
 
         @if(session('bookedSlots'))
             <div class="alert alert-danger">
-                <p>Some seats are booked and cannot be deleted:</p>
+                <p>Some seats are booked or paid and cannot be deleted:</p>
                 <ul>
                     @foreach(session('bookedSlots') as $seat)
-                        <li>Row {{ $seat['row'] }}, Seat {{ $seat['number'] }} (ID: {{ $seat['id'] }})</li>
+                        <li>Row {{ $seat['row'] }}, Seat {{ $seat['number'] }} (ID: {{ $seat['id'] }}) (Status: {{ ucfirst($seat['status']) }})</li>
                     @endforeach
                 </ul>
-            </div>
-        @endif
-
-
-        @if(session('confirm'))
-            <div class="alert alert-warning">
-                <p>Some seats are booked. Are you sure you want to remove all seats, including booked ones? This action
-                    cannot be undone.</p>
-                <form method="POST"
-                      action="{{ route('halls.clearSeats', ['cinema_id' => $cinema->id, 'hall_id' => $hall->id]) }}">
-                    @csrf
-                    <input type="hidden" name="confirm" value="true">
-                    <button type="submit" class="btn btn-danger">Confirm and Clear All</button>
-                    <a href="{{ route('halls.edit', ['cinema_id' => $cinema->id, 'hall_id' => $hall->id]) }}"
-                       class="btn btn-secondary">Cancel</a>
-                </form>
             </div>
         @endif
 
@@ -98,7 +78,7 @@
                 <form method="POST"
                       action="{{ route('halls.clearSeats', ['cinema_id' => $cinema->id, 'hall_id' => $hall->id]) }}">
                     @csrf
-                    <button type="submit" class="btn btn-danger mt-3">
+                    <button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmClearModal">
                         Clear hall (all seats)
                     </button>
                 </form>
@@ -136,6 +116,28 @@
                 <button type="submit" class="btn btn-success">Save selected seats</button>
             </div>
         </form>
+    </div>
+
+    <div class="modal fade" id="confirmClearModal" tabindex="-1" aria-labelledby="confirmClearModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmClearModalLabel">Confirm Action</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to clear all seats in the hall? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="POST" id="clearSeatsForm"
+                          action="{{ route('halls.clearSeats', ['cinema_id' => $cinema->id, 'hall_id' => $hall->id]) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">Confirm and Clear</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
 @endsection

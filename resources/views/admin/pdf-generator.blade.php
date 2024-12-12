@@ -21,6 +21,24 @@
                     <option value="guest">Guests</option>
                 </select>
             </div>
+            <div class="mb-3">
+                <label for="movie_id" class="form-label">Movie Title</label>
+                <select class="form-control" id="movie_id" name="movie_id">
+                    <option value="">All Movies</option>
+                    @foreach($movies as $id => $title)
+                        <option value="{{ $id }}">{{ $title }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="city_id" class="form-label">City</label>
+                <select class="form-control" id="city_id" name="city_id">
+                    <option value="">All Cities</option>
+                    @foreach($cities as $id => $name)
+                        <option value="{{ $id }}">{{ $name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             <button type="button" class="btn btn-secondary" onclick="previewPDF()">Preview</button>
             <button type="submit" class="btn btn-primary">Generate PDF</button>

@@ -50,6 +50,12 @@
     @if (!empty($isUser))
         <p>User Type: {{ $isUser === 'user' ? 'Registered Users' : 'Guests' }}</p>
     @endif
+    @if (!empty($selectedMovie))
+        <p>Movie: {{ $selectedMovie }}</p>
+    @endif
+    @if (!empty($selectedCity))
+        <p>City: {{ $selectedCity }}</p>
+    @endif
 </div>
 
 <table>

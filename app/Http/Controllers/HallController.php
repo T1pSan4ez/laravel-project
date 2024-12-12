@@ -106,9 +106,9 @@ class HallController extends Controller
 
         $existingSlots = $hall->slots()->get();
 
+        $bookedOrPaidSlots = [];
         $slotsToDelete = [];
         $seatsToAdd = [];
-        $bookedSlots = [];
 
         foreach ($existingSlots as $slot) {
             $isInSelected = collect($selectedSeats)->first(function ($seat) use ($slot) {
@@ -116,12 +116,12 @@ class HallController extends Controller
             });
 
             if (!$isInSelected) {
-
-                if ($slot->sessionSlots()->where('status', 'booked')->exists()) {
-                    $bookedSlots[] = [
+                if ($slot->sessionSlots()->whereIn('status', ['booked', 'paid'])->exists()) {
+                    $bookedOrPaidSlots[] = [
                         'id' => $slot->id,
                         'row' => $slot->row,
                         'number' => $slot->number,
+                        'status' => $slot->sessionSlots->first()->status,
                     ];
                 } else {
                     $slotsToDelete[] = $slot->id;
@@ -129,10 +129,10 @@ class HallController extends Controller
             }
         }
 
-        if (!empty($bookedSlots)) {
+        if (!empty($bookedOrPaidSlots)) {
             return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
-
-                ->with('bookedSlots', $bookedSlots);
+                ->with('error', 'Some slots with status "booked" or "paid" cannot be modified or deleted.')
+                ->with('bookedSlots', $bookedOrPaidSlots);
         }
 
         foreach ($selectedSeats as $seat) {
@@ -179,19 +179,23 @@ class HallController extends Controller
             ->with('success', 'Hall configuration updated successfully.');
     }
 
+
     public function clearSeats(Request $request, $cinema_id, $hall_id)
     {
         $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
 
-        $bookedSlots = $hall->slots()->whereHas('sessionSlots', function ($query) {
-            $query->where('status', 'booked');
-        })->get();
+        // Проверяем наличие мест со статусами 'booked' или 'paid'
+        $protectedSlots = $hall->slots()->whereHas('sessionSlots', function ($query) {
+            $query->whereIn('status', ['booked', 'paid']);
+        })->exists();
 
-        if ($bookedSlots->isNotEmpty() && !$request->has('confirm')) {
+        // Если есть такие места, блокируем удаление
+        if ($protectedSlots) {
             return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
-                ->with('confirm', true);
+                ->with('error', 'Cannot clear the hall. Some slots have status "booked" or "paid".');
         }
 
+        // Удаляем все слоты
         $hall->slots()->delete();
 
         $hall->sessions()->each(function ($session) {

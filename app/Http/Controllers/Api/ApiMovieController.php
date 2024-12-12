@@ -12,21 +12,21 @@ class ApiMovieController extends Controller
     public function index($cinemaId)
     {
         $movies = Movie::whereHas('sessions', function ($query) use ($cinemaId) {
-            $query->whereHas('hall.slots.sessionSlots', function ($slotQuery) {
-                $slotQuery->whereHas('session');
-            })->whereHas('hall', function ($hallQuery) use ($cinemaId) {
+            $query->whereHas('hall', function ($hallQuery) use ($cinemaId) {
                 $hallQuery->where('cinema_id', $cinemaId);
             });
         })->with([
             'sessions' => function ($query) use ($cinemaId) {
-                $query->whereHas('hall.slots.sessionSlots', function ($slotQuery) {
-                    $slotQuery->whereHas('session');
-                })->whereHas('hall', function ($hallQuery) use ($cinemaId) {
+                $query->whereHas('hall', function ($hallQuery) use ($cinemaId) {
                     $hallQuery->where('cinema_id', $cinemaId);
-                });
+                })->orderBy('start_time', 'asc');
             },
             'genres'
-        ])->orderBy('created_at', 'desc')->get();
+        ])->get();
+
+        $movies = $movies->sortBy(function ($movie) {
+            return optional($movie->sessions->first())->start_time;
+        });
 
         return MovieResource::collection($movies);
     }

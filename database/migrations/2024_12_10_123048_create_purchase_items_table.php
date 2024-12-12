@@ -22,6 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('purchase_id')->references('id')->on('purchases')->onDelete('cascade');
+            $table->foreign('slot_id')->references('id')->on('session_slots')->onDelete('set null');
         });
     }
 
