@@ -3,47 +3,32 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\QRToken;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use App\Http\Requests\QRLoginRequest;
+use App\Repositories\QRCodeRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class QRCodeController extends Controller
 {
+    protected $qrCodeRepository;
+
+    public function __construct(QRCodeRepositoryInterface $qrCodeRepository)
+    {
+        $this->qrCodeRepository = $qrCodeRepository;
+    }
+
     public function generateToken(Request $request)
     {
         $user = $request->user();
 
-        $existingToken = QRToken::where('user_id', $user->id)
-            ->where('expires_at', '>', now())
-            ->first();
-
-        if ($existingToken) {
-            return response()->json(['token' => $existingToken->token], 200);
-        }
-
-        $token = Str::random(32);
-
-        QRToken::updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'token' => $token,
-                'expires_at' => now()->addMinutes(5),
-            ]
-        );
+        $token = $this->qrCodeRepository->generateToken($user);
 
         return response()->json(['token' => $token], 200);
     }
 
-    public function login(Request $request)
+    public function login(QRLoginRequest $request)
     {
-        $request->validate([
-            'token' => 'required|string',
-        ]);
-
-        $qrToken = QRToken::where('token', $request->token)
-            ->where('expires_at', '>', now())
-            ->first();
+        $qrToken = $this->qrCodeRepository->findValidToken($request->token);
 
         if (!$qrToken) {
             return response()->json(['message' => 'Invalid or expired QR token.'], 401);
@@ -55,7 +40,7 @@ class QRCodeController extends Controller
             return response()->json(['message' => 'User not found.'], 404);
         }
 
-        $qrToken->delete();
+        $this->qrCodeRepository->deleteToken($qrToken);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -65,5 +50,4 @@ class QRCodeController extends Controller
             'token' => $token,
         ], 200);
     }
-
 }

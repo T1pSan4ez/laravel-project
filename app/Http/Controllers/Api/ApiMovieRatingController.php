@@ -3,41 +3,42 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMovieRatingRequest;
 use App\Http\Resources\RatingResource;
-use App\Models\Rating;
-use App\Models\Movie;
-use Illuminate\Http\Request;
+use App\Repositories\ApiMovieRatingRepositoryInterface;
+
 
 class ApiMovieRatingController extends Controller
 {
-    public function store(Request $request, $movieId)
+    protected $repository;
+
+    public function __construct(ApiMovieRatingRepositoryInterface $repository)
     {
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:10',
-        ]);
+        $this->repository = $repository;
+    }
 
-        $movie = Movie::findOrFail($movieId);
-
-        $rating = Rating::updateOrCreate(
-            ['user_id' => $request->user()->id, 'movie_id' => $movieId],
-            ['rating' => $request->input('rating')]
+    public function store(StoreMovieRatingRequest $request, $movieId)
+    {
+        $rating = $this->repository->saveRating(
+            $request->user()->id,
+            $movieId,
+            $request->input('rating')
         );
 
         return response()->json([
             'message' => 'Rating saved successfully.',
-            'rating' => $rating,
+            'rating' => new RatingResource($rating),
         ], 201);
     }
 
     public function index($movieId)
     {
-        $movie = Movie::findOrFail($movieId);
-
-        $ratings = $movie->ratings()->with('user')->get();
+        $ratings = $this->repository->getMovieRatings($movieId);
+        $averageRating = $this->repository->getMovieAverageRating($movieId);
 
         return response()->json([
             'ratings' => RatingResource::collection($ratings),
-            'average_rating' => $movie->ratings()->avg('rating'),
+            'average_rating' => $averageRating,
         ]);
     }
 }

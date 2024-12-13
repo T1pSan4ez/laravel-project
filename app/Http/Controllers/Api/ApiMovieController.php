@@ -4,29 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MovieResource;
-use App\Models\Movie;
-
+use App\Repositories\ApiMovieRepositoryInterface;
 
 class ApiMovieController extends Controller
 {
+    protected $apiMovieRepository;
+
+    public function __construct(ApiMovieRepositoryInterface $apiMovieRepository)
+    {
+        $this->apiMovieRepository = $apiMovieRepository;
+    }
+
     public function index($cinemaId)
     {
-        $movies = Movie::whereHas('sessions', function ($query) use ($cinemaId) {
-            $query->whereHas('hall', function ($hallQuery) use ($cinemaId) {
-                $hallQuery->where('cinema_id', $cinemaId);
-            });
-        })->with([
-            'sessions' => function ($query) use ($cinemaId) {
-                $query->whereHas('hall', function ($hallQuery) use ($cinemaId) {
-                    $hallQuery->where('cinema_id', $cinemaId);
-                })->orderBy('start_time', 'asc');
-            },
-            'genres'
-        ])->get();
-
-        $movies = $movies->sortBy(function ($movie) {
-            return optional($movie->sessions->first())->start_time;
-        });
+        $movies = $this->apiMovieRepository->getMoviesByCinema($cinemaId);
 
         return MovieResource::collection($movies);
     }

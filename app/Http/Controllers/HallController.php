@@ -4,17 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHallRequest;
 use App\Http\Requests\UpdateSeatsRequest;
-use App\Models\Cinema;
-use App\Models\Hall;
-use App\Models\Slot;
+use App\Repositories\HallRepositoryInterface;
 use Illuminate\Http\Request;
 
 class HallController extends Controller
 {
+    protected $hallRepository;
+
+    public function __construct(HallRepositoryInterface $hallRepository)
+    {
+        $this->hallRepository = $hallRepository;
+    }
+
     public function index($cinema_id)
     {
-        $cinema = Cinema::with('halls')->findOrFail($cinema_id);
-
+        $cinema = $this->hallRepository->getCinemaWithHalls($cinema_id);
         return view('admin.halls', [
             'cinema' => $cinema,
             'halls' => $cinema->halls,
@@ -23,10 +27,7 @@ class HallController extends Controller
 
     public function store(StoreHallRequest $request, $cinema_id)
     {
-        $cinema = Cinema::findOrFail($cinema_id);
-        $cinema->halls()->create([
-            'name' => $request->input('name'),
-        ]);
+        $this->hallRepository->createHall($cinema_id, ['name' => $request->input('name')]);
 
         return redirect()->route('halls', ['cinema_id' => $cinema_id])
             ->with('success', 'Hall added successfully.');
@@ -34,11 +35,23 @@ class HallController extends Controller
 
     public function destroy($cinema_id, $hall_id)
     {
-        $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
-        $hall->delete();
+        $this->hallRepository->deleteHall($cinema_id, $hall_id);
 
         return redirect()->route('halls', ['cinema_id' => $cinema_id])
             ->with('success', 'Hall deleted successfully.');
+    }
+
+    public function clearSeats(Request $request, $cinema_id, $hall_id)
+    {
+        $hall = $this->hallRepository->findHall($cinema_id, $hall_id);
+
+        if (!$this->hallRepository->clearSeats($hall)) {
+            return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
+                ->with('error', 'Cannot clear the hall. Some slots have status "booked" or "paid".');
+        }
+
+        return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
+            ->with('success', 'Hall seats cleared successfully.');
     }
 
     public function edit(Request $request, $cinema_id, $hall_id)
@@ -48,162 +61,31 @@ class HallController extends Controller
         $minColumns = 1;
         $maxColumns = 20;
 
-        $cinema = Cinema::findOrFail($cinema_id);
-        $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
+        $data = $request->only('rows', 'columns');
 
-        $selectedSeats = $hall->slots()->get(['row', 'number', 'type'])->toArray();
+        $hallData = $this->hallRepository->editHall($cinema_id, $hall_id, $data);
 
-        $seatStyles = [];
-        foreach ($selectedSeats as $seat) {
-            $key = "{$seat['row']}-{$seat['number']}";
-            $seatStyles[$key] = $seat['type'] === 'vip' ? 'vip' : 'standard';
-        }
-
-        $maxRow = !empty($selectedSeats) ? max(array_column($selectedSeats, 'row')) : 10;
-        $maxColumn = !empty($selectedSeats) ? max(array_column($selectedSeats, 'number')) : 10;
-
-        $rows = max($request->input('rows', 10), $maxRow);
-        $columns = max($request->input('columns', 10), $maxColumn);
-
-        $validatedData = $request->validate([
-            'rows' => "nullable|integer|min:$minRows|max:$maxRows",
-            'columns' => "nullable|integer|min:$minColumns|max:$maxColumns",
-        ]);
-
-        $seats = $hall->slots;
-        if ($seats->isEmpty()) {
-            $virtualSeats = [];
-            for ($row = 1; $row <= $rows; $row++) {
-                for ($number = 1; $number <= $columns; $number++) {
-                    $virtualSeats[] = (object) [
-                        'row' => $row,
-                        'number' => $number
-                    ];
-                }
-            }
-            $seats = collect($virtualSeats);
-        }
-
-        return view('admin.halls-edit', [
-            'cinema' => $cinema,
-            'hall' => $hall,
-            'seats' => $seats,
-            'rows' => $rows,
-            'columns' => $columns,
-            'selectedSeats' => $selectedSeats,
-            'seatStyles' => $seatStyles,
+        return view('admin.halls-edit', array_merge($hallData, [
             'minRows' => $minRows,
             'maxRows' => $maxRows,
             'minColumns' => $minColumns,
             'maxColumns' => $maxColumns,
-        ]);
+        ]));
     }
 
     public function updateSeats(UpdateSeatsRequest $request, $cinema_id, $hall_id)
     {
-        $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
+        $hall = $this->hallRepository->findHall($cinema_id, $hall_id);
         $selectedSeats = json_decode($request->input('selected_seats'), true);
+        $errors = [];
 
-        $existingSlots = $hall->slots()->get();
-
-        $bookedOrPaidSlots = [];
-        $slotsToDelete = [];
-        $seatsToAdd = [];
-
-        foreach ($existingSlots as $slot) {
-            $isInSelected = collect($selectedSeats)->first(function ($seat) use ($slot) {
-                return $seat['row'] == $slot->row && $seat['number'] == $slot->number;
-            });
-
-            if (!$isInSelected) {
-                if ($slot->sessionSlots()->whereIn('status', ['booked', 'paid'])->exists()) {
-                    $bookedOrPaidSlots[] = [
-                        'id' => $slot->id,
-                        'row' => $slot->row,
-                        'number' => $slot->number,
-                        'status' => $slot->sessionSlots->first()->status,
-                    ];
-                } else {
-                    $slotsToDelete[] = $slot->id;
-                }
-            }
-        }
-
-        if (!empty($bookedOrPaidSlots)) {
+        if (!$this->hallRepository->updateHallSeats($hall, $selectedSeats, $errors)) {
             return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
                 ->with('error', 'Some slots with status "booked" or "paid" cannot be modified or deleted.')
-                ->with('bookedSlots', $bookedOrPaidSlots);
-        }
-
-        foreach ($selectedSeats as $seat) {
-            $exists = $existingSlots->first(function ($slot) use ($seat) {
-                return $slot->row == $seat['row'] && $slot->number == $seat['number'];
-            });
-
-            if (!$exists) {
-                $seatsToAdd[] = [
-                    'hall_id' => $hall_id,
-                    'row' => $seat['row'],
-                    'number' => $seat['number'],
-                    'type' => $seat['type'],
-                    'price' => $seat['price'],
-                ];
-            }
-        }
-
-        if (!empty($slotsToDelete)) {
-            Slot::whereIn('id', $slotsToDelete)->each(function ($slot) {
-                $slot->sessionSlots()->delete();
-                $slot->delete();
-            });
-        }
-
-        if (!empty($seatsToAdd)) {
-            $hall->slots()->insert($seatsToAdd);
-
-            $newSlots = $hall->slots()->whereIn('row', array_column($seatsToAdd, 'row'))
-                ->whereIn('number', array_column($seatsToAdd, 'number'))
-                ->get();
-
-            foreach ($newSlots as $slot) {
-                foreach ($hall->sessions as $session) {
-                    $session->sessionSlots()->create([
-                        'slot_id' => $slot->id,
-                        'status' => 'available',
-                    ]);
-                }
-            }
+                ->with('bookedSlots', $errors['bookedOrPaidSlots']);
         }
 
         return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
             ->with('success', 'Hall configuration updated successfully.');
     }
-
-
-    public function clearSeats(Request $request, $cinema_id, $hall_id)
-    {
-        $hall = Hall::where('cinema_id', $cinema_id)->findOrFail($hall_id);
-
-        // Проверяем наличие мест со статусами 'booked' или 'paid'
-        $protectedSlots = $hall->slots()->whereHas('sessionSlots', function ($query) {
-            $query->whereIn('status', ['booked', 'paid']);
-        })->exists();
-
-        // Если есть такие места, блокируем удаление
-        if ($protectedSlots) {
-            return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
-                ->with('error', 'Cannot clear the hall. Some slots have status "booked" or "paid".');
-        }
-
-        // Удаляем все слоты
-        $hall->slots()->delete();
-
-        $hall->sessions()->each(function ($session) {
-            $session->sessionSlots()->delete();
-        });
-
-        return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
-            ->with('success', 'Hall seats cleared successfully.');
-    }
-
 }

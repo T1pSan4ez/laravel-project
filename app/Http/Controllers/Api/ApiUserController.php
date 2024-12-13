@@ -3,46 +3,41 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
+use App\Repositories\ApiUserRepositoryInterface;
+
 class ApiUserController extends Controller
 {
+    protected $repository;
+
+    public function __construct(ApiUserRepositoryInterface $repository)
+    {
+        $this->repository = $repository;
+    }
+
     public function show()
     {
-        $user = Auth::user();
+        $user = $this->repository->getAuthenticatedUser();
         return new UserResource($user);
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        $user = Auth::user();
+        $user = $this->repository->getAuthenticatedUser();
 
-        $request->validate([
-            'name' => 'string|max:255',
-        ]);
-
-        $user->name = $request->input('name');
-
-        $user->save();
+        $this->repository->updateProfile($user, $request->validated());
 
         return new UserResource($user);
     }
 
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdatePasswordRequest $request)
     {
-        $request->validate([
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $user = $this->repository->getAuthenticatedUser();
 
-        $user = Auth::user();
+        $this->repository->updatePassword($user, $request->password);
 
-        $user->password = Hash::make($request->password);
-        $user->save();
-
-        return response()->json(['message' => 'Пароль успешно обновлен.']);
+        return response()->json(['message' => 'Password updated successfully.']);
     }
-
 }

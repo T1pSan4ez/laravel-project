@@ -2,14 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Repositories\UserRepositoryInterface;
 
 class UserController extends Controller
 {
+    protected $userRepository;
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
+
     public function index()
     {
-        $users = User::where('role', '!=', 1)->orderBy('name', 'asc')->paginate(10);
+        $users = $this->userRepository->getAllNonAdminUsersPaginated(10);
         return view('admin.users', compact('users'));
     }
 }

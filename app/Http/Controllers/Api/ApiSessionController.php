@@ -4,15 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SessionResource;
-use App\Models\Session;
+use App\Repositories\ApiSessionRepositoryInterface;
 
 class ApiSessionController extends Controller
 {
+    protected $repository;
+
+    public function __construct(ApiSessionRepositoryInterface $repository)
+    {
+        $this->repository = $repository;
+    }
+
     public function index($id)
     {
-        $session = Session::with(['hall.cinema.city', 'hall.slots'])->findOrFail($id);
+        $session = $this->repository->getSessionById($id);
 
         return new SessionResource($session);
     }
-
 }

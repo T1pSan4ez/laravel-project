@@ -3,89 +3,75 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserActivityRequest;
 use App\Http\Resources\RecommendedMovieResource;
 use App\Http\Resources\RecommendedSessionResource;
-use App\Models\Session;
-use App\Models\UserActivity;
-use App\Models\Movie;
+use App\Repositories\UserActivityRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class UserActivityController extends Controller
 {
+    protected $userActivityRepository;
+
+    public function __construct(UserActivityRepositoryInterface $userActivityRepository)
+    {
+        $this->userActivityRepository = $userActivityRepository;
+    }
+
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $userActivities = UserActivity::where('user_id', $user->id)
-            ->pluck('movie_id')
-            ->toArray();
+        $userActivities = $this->userActivityRepository->getUserActivitiesMovieIds($user->id);
 
         if (empty($userActivities)) {
             return response()->json([
-                'message' => 'Активность отсутствует. Рекомендации не могут быть созданы.',
+                'message' => 'Activity history is empty',
                 'recommendations' => []
             ], 200);
         }
 
-        $userMovieGenres = Movie::whereIn('id', $userActivities)
-            ->with('genres')
-            ->get()
-            ->pluck('genres')
-            ->flatten()
-            ->unique('id')
-            ->pluck('id')
-            ->toArray();
+        $userMovieGenres = $this->userActivityRepository->getUserMovieGenres($userActivities);
 
         if (empty($userMovieGenres)) {
             return response()->json([
-                'message' => 'Жанры фильмов не найдены. Рекомендации не могут быть созданы.',
+                'message' => 'Genres of movies are empty. Recommendations cannot be created.',
                 'recommendations' => []
             ], 200);
         }
 
-        $recommendedMovies = Movie::whereHas('genres', function ($query) use ($userMovieGenres) {
-            $query->whereIn('genres.id', $userMovieGenres);
-        })
-            ->whereNotIn('id', $userActivities)
-            ->with('genres')
-            ->distinct()
-            ->limit(6)
-            ->get();
+        $recommendedMovies = $this->userActivityRepository->getRecommendedMovies($userMovieGenres, $userActivities);
 
         return response()->json([
             'recommendations' => RecommendedMovieResource::collection($recommendedMovies),
         ], 200);
     }
 
-
-    public function store(Request $request)
+    public function store(StoreUserActivityRequest $request)
     {
-        $validated = $request->validate([
-            'movie_id' => 'required|exists:movies,id',
-            'action' => 'required|in:view,booking',
-        ]);
+        $validated = $request->validated();
 
-        $existingActivity = UserActivity::where('user_id', $request->user()->id)
-            ->where('movie_id', $validated['movie_id'])
-            ->where('action', $validated['action'])
-            ->first();
+        $existingActivity = $this->userActivityRepository->findExistingActivity(
+            $request->user()->id,
+            $validated['movie_id'],
+            $validated['action']
+        );
 
         if ($existingActivity) {
             return response()->json([
-                'message' => 'Активность уже существует.',
+                'message' => 'Activity already exists.',
                 'activity' => $existingActivity,
             ], 200);
         }
 
-        $activity = UserActivity::create([
+        $activity = $this->userActivityRepository->createActivity([
             'user_id' => $request->user()->id,
             'movie_id' => $validated['movie_id'],
             'action' => $validated['action'],
         ]);
 
         return response()->json([
-            'message' => 'Активность успешно записана.',
+            'message' => 'Activity recorded successfully.',
             'activity' => $activity,
         ], 201);
     }
@@ -94,42 +80,30 @@ class UserActivityController extends Controller
     {
         $user = $request->user();
 
-        $viewedMovies = UserActivity::where('user_id', $user->id)
-            ->where('action', 'view')
-            ->pluck('movie_id')
-            ->toArray();
+        $viewedMovies = $this->userActivityRepository->getViewedMovies($user->id);
 
         if (empty($viewedMovies)) {
             return response()->json([
-                'message' => 'У вас нет просмотренных фильмов. Рекомендации сеансов невозможны.',
+                'message' => 'You have no viewed movies. Sessions recommendations are not possible.',
                 'sessions' => []
             ], 200);
         }
 
-        $bookedMovies = UserActivity::where('user_id', $user->id)
-            ->where('action', 'booking')
-            ->pluck('movie_id')
-            ->toArray();
+        $bookedMovies = $this->userActivityRepository->getBookedMovies($user->id);
 
         $filteredMovies = array_diff($viewedMovies, $bookedMovies);
 
         if (empty($filteredMovies)) {
             return response()->json([
-                'message' => 'Все просмотренные фильмы уже забронированы. Рекомендации отсутствуют.',
+                'message' => 'All viewed movies are already booked. Sessions recommendations are not possible.',
                 'sessions' => []
             ], 200);
         }
 
-        $recommendedSessions = Session::with(['hall.cinema.city', 'movie'])
-            ->whereIn('movie_id', $filteredMovies)
-            ->where('start_time', '>=', now())
-            ->get();
+        $recommendedSessions = $this->userActivityRepository->getRecommendedSessions($filteredMovies);
 
         return response()->json([
             'sessions' => RecommendedSessionResource::collection($recommendedSessions),
         ], 200);
     }
-
-
-
 }

@@ -3,41 +3,42 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMovieCommentRequest;
 use App\Http\Resources\CommentResource;
-use App\Models\Comment;
 use App\Models\Movie;
+use App\Models\Comment;
+use App\Repositories\ApiMovieCommentRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ApiMovieCommentController extends Controller
 {
+    protected $movieCommentRepository;
+
+    public function __construct(ApiMovieCommentRepositoryInterface $movieCommentRepository)
+    {
+        $this->movieCommentRepository = $movieCommentRepository;
+    }
+
     public function index($movieId)
     {
-        $movie = Movie::findOrFail($movieId);
-
-        $comments = $movie->comments()
-            ->with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $comments = $this->movieCommentRepository->getCommentsForMovie($movieId, 10);
 
         return CommentResource::collection($comments)->response();
     }
 
-    public function store(Request $request, $movieId)
+    public function store(StoreMovieCommentRequest $request, $movieId)
     {
-        $request->validate([
-            'content' => 'required|string|max:1000',
-        ]);
-
         $movie = Movie::findOrFail($movieId);
 
-        $comment = Comment::create([
+        $comment = $this->movieCommentRepository->createCommentForMovie($movie, [
             'user_id' => $request->user()->id,
             'content' => $request->input('content'),
         ]);
 
-        $movie->comments()->attach($comment->id);
-
-        return response()->json(['message' => 'Comment added successfully.', 'comment' => new CommentResource($comment)], 201);
+        return response()->json([
+            'message' => 'Comment added successfully.',
+            'comment' => new CommentResource($comment),
+        ], 201);
     }
 
     public function destroy(Request $request, $commentId)
@@ -48,7 +49,7 @@ class ApiMovieCommentController extends Controller
             return response()->json(['message' => 'You do not have permission to delete this comment.'], 403);
         }
 
-        $comment->delete();
+        $this->movieCommentRepository->deleteComment($comment);
 
         return response()->json(['message' => 'Comment deleted successfully.'], 200);
     }

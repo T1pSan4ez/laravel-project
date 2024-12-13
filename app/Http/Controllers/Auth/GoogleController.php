@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use App\Repositories\GoogleAuthRepositoryInterface;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
 
 class GoogleController extends Controller
 {
+    protected $googleAuthRepository;
+
+    public function __construct(GoogleAuthRepositoryInterface $googleAuthRepository)
+    {
+        $this->googleAuthRepository = $googleAuthRepository;
+    }
+
     public function redirectToGoogle()
     {
-        $redirectUrl = Socialite::driver('google')->stateless()->redirect()->getTargetUrl();
+        $redirectUrl = $this->googleAuthRepository->getRedirectUrl();
 
         return response()->json(['url' => $redirectUrl]);
     }
@@ -22,15 +28,7 @@ class GoogleController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            $user = User::firstOrCreate(
-                ['email' => $googleUser->getEmail()],
-                [
-                    'name' => $googleUser->getName(),
-                    'password' => bcrypt(str()->random(16)),
-                ]
-            );
-
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $this->googleAuthRepository->authenticateUser($googleUser);
 
             return redirect("http://localhost:5174/auth?token={$token}");
         } catch (\Exception $e) {

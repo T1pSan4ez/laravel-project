@@ -4,33 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CityResource;
-use App\Models\City;
-
+use App\Repositories\ApiCinemaRepositoryInterface;
 
 class ApiCinemaController extends Controller
 {
+    protected $cinemaRepository;
+
+    public function __construct(ApiCinemaRepositoryInterface $cinemaRepository)
+    {
+        $this->cinemaRepository = $cinemaRepository;
+    }
+
     public function index()
     {
-        $cities = City::whereHas('cinemas.halls.slots.sessionSlots', function ($query) {
-            $query->whereHas('session');
-        })->with([
-            'cinemas' => function ($cinemaQuery) {
-                $cinemaQuery->whereHas('halls.slots.sessionSlots', function ($query) {
-                    $query->whereHas('session');
-                })->with([
-                    'halls' => function ($hallQuery) {
-                        $hallQuery->whereHas('slots.sessionSlots', function ($query) {
-                            $query->whereHas('session');
-                        })->with(['slots' => function ($slotQuery) {
-                            $slotQuery->whereHas('sessionSlots', function ($query) {
-                                $query->whereHas('session');
-                            });
-                        }]);
-                    }
-                ]);
-            }
-        ])->orderBy('name', 'asc')->get();
-
+        $cities = $this->cinemaRepository->getCitiesWithSessions();
         return CityResource::collection($cities);
     }
 }

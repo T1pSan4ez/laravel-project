@@ -2,31 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
+use App\Repositories\ProductRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    protected $productRepository;
+
+    public function __construct(ProductRepositoryInterface $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
     public function index()
     {
-        $products = Product::paginate(10);
+        $products = $this->productRepository->getAllPaginated(10);
         return view('admin.products', compact('products'));
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
-        }
-
-        Product::create($validated);
+        $this->productRepository->create($request->validated());
 
         return redirect()->route('products')->with('success', 'Product created successfully.');
     }
@@ -36,34 +35,16 @@ class ProductController extends Controller
         return view('admin.products-edit', compact('product'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
-            }
-
-            $validated['image'] = $request->file('image')->store('products', 'public');
-        }
-
-        $product->update($validated);
+        $this->productRepository->update($product, $request->validated());
 
         return redirect()->route('products')->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
-        }
-
-        $product->delete();
+        $this->productRepository->delete($product);
 
         return redirect()->route('products')->with('success', 'Product deleted successfully.');
     }

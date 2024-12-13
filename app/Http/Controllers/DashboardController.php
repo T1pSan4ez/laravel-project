@@ -2,25 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\City;
-use App\Models\Cinema;
-use App\Models\Hall;
-use App\Models\Movie;
-use App\Models\Session;
-use Illuminate\Http\Request;
+use App\Repositories\DashboardRepositoryInterface;
 
 class DashboardController extends Controller
 {
+    protected $dashboardRepository;
+
+    public function __construct(DashboardRepositoryInterface $dashboardRepository)
+    {
+        $this->dashboardRepository = $dashboardRepository;
+    }
+
     public function index()
     {
-        $adminCount = User::where('role', '1')->count();
-        $userCount = User::where('role', '0')->count();
-        $cityCount = City::count();
-        $cinemaCount = Cinema::count();
-        $hallCount = Hall::count();
-        $movieCount = Movie::count();
-        $sessionCount = Session::count();
+        $adminCount = $this->dashboardRepository->getAdminCount();
+        $userCount = $this->dashboardRepository->getUserCount();
+        $cityCount = $this->dashboardRepository->getCityCount();
+        $cinemaCount = $this->dashboardRepository->getCinemaCount();
+        $hallCount = $this->dashboardRepository->getHallCount();
+        $movieCount = $this->dashboardRepository->getMovieCount();
+        $sessionCount = $this->dashboardRepository->getSessionCount();
 
         return view('admin.dashboard', compact(
             'adminCount',
