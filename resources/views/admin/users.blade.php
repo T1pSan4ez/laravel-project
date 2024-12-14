@@ -2,9 +2,11 @@
 @section('title', 'Users')
 @section('content')
     <div class="container mt-3">
-
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
         @if($users->isNotEmpty())
@@ -14,6 +16,8 @@
                     <th>#</th>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>User Type</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -22,6 +26,21 @@
                         <td>{{ $loop->iteration + $users->firstItem() - 1 }}</td>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>{{ $user->user_type }}</td>
+                        <td>
+                            @if(auth()->user()->user_type === 'super_admin' || (auth()->user()->user_type === 'admin' && $user->user_type === 'user'))
+                                <form action="{{ route('users.updateType', $user->id) }}" method="POST">
+                                    @csrf
+                                    <select name="user_type" class="form-select form-select-sm d-inline-block w-auto">
+                                        <option value="user" {{ $user->user_type === 'user' ? 'selected' : '' }}>User</option>
+                                        @if(auth()->user()->user_type === 'super_admin')
+                                            <option value="admin" {{ $user->user_type === 'admin' ? 'selected' : '' }}>Admin</option>
+                                        @endif
+                                    </select>
+                                    <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                </form>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>

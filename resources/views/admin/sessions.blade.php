@@ -7,6 +7,12 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <ul class="nav nav-tabs">
             <li class="nav-item">
                 <a class="nav-link" id="create-session-tab" href="#create-session" data-bs-toggle="tab">Create Session</a>
@@ -176,11 +182,13 @@
                                 <td class="px-3 py-2">{{ $session->end_time }}</td>
                                 <td class="px-3 py-2 text-center">
                                     <a href="{{ route('sessions.edit', $session->id) }}" class="btn btn-warning btn-sm">Edit</a>
-                                    <form action="{{ route('sessions.destroy', $session->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this session?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#confirmDeleteModal"
+                                            data-session-id="{{ $session->id }}"
+                                            data-session-movie="{{ $session->movie->title }}">
+                                        Delete
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -194,6 +202,29 @@
                 @else
                     <div class="alert alert-warning mt-4">No sessions found</div>
                 @endif
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the session for <strong id="sessionMovie"></strong>? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="POST" id="deleteSessionForm" action="">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Confirm and Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -232,6 +263,21 @@
                 }
             });
         });
+
+        const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+        const deleteSessionForm = document.getElementById('deleteSessionForm');
+        const sessionMovie = document.getElementById('sessionMovie');
+
+        confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const sessionId = button.getAttribute('data-session-id');
+            const movieTitle = button.getAttribute('data-session-movie');
+
+            deleteSessionForm.action = `/admin-panel/sessions/${sessionId}`;
+            sessionMovie.textContent = movieTitle;
+        });
+
+
     });
 
     function showCinemas(cityId) {

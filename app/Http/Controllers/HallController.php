@@ -35,7 +35,11 @@ class HallController extends Controller
 
     public function destroy($cinema_id, $hall_id)
     {
-        $this->hallRepository->deleteHall($cinema_id, $hall_id);
+        $deleted = $this->hallRepository->deleteHall($cinema_id, $hall_id);
+
+        if (!$deleted) {
+            return redirect()->route('halls', ['cinema_id' => $cinema_id]);
+        }
 
         return redirect()->route('halls', ['cinema_id' => $cinema_id])
             ->with('success', 'Hall deleted successfully.');
@@ -64,6 +68,11 @@ class HallController extends Controller
         $data = $request->only('rows', 'columns');
 
         $hallData = $this->hallRepository->editHall($cinema_id, $hall_id, $data);
+
+        if ($hallData === null) {
+            return redirect()->route('halls.edit', ['cinema_id' => $cinema_id, 'hall_id' => $hall_id])
+                ->with('error', 'Валидация не прошла: проверьте количество рядов и колонок.');
+        }
 
         return view('admin.halls-edit', array_merge($hallData, [
             'minRows' => $minRows,

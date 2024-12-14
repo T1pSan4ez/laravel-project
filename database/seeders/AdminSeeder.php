@@ -20,6 +20,7 @@ class AdminSeeder extends Seeder
             'password' => Hash::make('rootroot'),
             'avatar' => 'admin-avatar.png',
             'role' => true,
+            'user_type' => 'super_admin',
         ]);
     }
 }

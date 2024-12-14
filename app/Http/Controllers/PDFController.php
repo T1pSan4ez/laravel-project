@@ -36,12 +36,14 @@ class PDFController extends Controller
         $purchases = $this->pdfRepository->getFilteredPurchases($filters);
 
         $totalEarnings = $this->pdfRepository->calculateTotalEarnings($purchases);
+
         $selectedMovie = $filters['movie_id']
             ? $this->pdfRepository->getMovieTitleById($filters['movie_id'])
-            : 'All Movies';
+            : $this->pdfRepository->getMoviesWithSessions()->implode(', ');
+
         $selectedCity = $filters['city_id']
             ? $this->pdfRepository->getCityNameById($filters['city_id'])
-            : 'All Cities';
+            : $this->pdfRepository->getCitiesWithCinemas()->implode(', ');
 
         $data = [
             'title' => 'Purchase Report',

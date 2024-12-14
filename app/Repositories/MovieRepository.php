@@ -11,7 +11,7 @@ class MovieRepository implements MovieRepositoryInterface
 {
     public function getAllMovies(): Paginator
     {
-        return Movie::orderBy('created_at', 'desc')->paginate(5);
+        return Movie::orderBy('created_at', 'desc')->paginate(10);
     }
 
     public function getMovieGenres()
@@ -57,12 +57,24 @@ class MovieRepository implements MovieRepositoryInterface
     public function deleteMovie(int $id): bool
     {
         $movie = Movie::findOrFail($id);
+
+        $hasBookedSlots = $movie->sessions()
+            ->whereHas('sessionSlots', function ($query) {
+                $query->whereIn('status', ['booked', 'paid']);
+            })
+            ->exists();
+
+        if ($hasBookedSlots) {
+            session()->flash('error', 'Cannot delete the movie because it has booked slots in associated sessions.');
+            return false;
+        }
+
         $movie->delete();
         return true;
     }
 
     public function searchMovies(string $query): Paginator
     {
-        return Movie::where('title', 'like', '%' . $query . '%')->paginate(5);
+        return Movie::where('title', 'like', '%' . $query . '%')->paginate(10);
     }
 }

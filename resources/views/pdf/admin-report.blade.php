@@ -51,10 +51,10 @@
         <p>User Type: {{ $isUser === 'user' ? 'Registered Users' : 'Guests' }}</p>
     @endif
     @if (!empty($selectedMovie))
-        <p>Movie: {{ $selectedMovie }}</p>
+        <p>Movie(s): {{ $selectedMovie }}</p>
     @endif
     @if (!empty($selectedCity))
-        <p>City: {{ $selectedCity }}</p>
+        <p>City/Cities: {{ $selectedCity }}</p>
     @endif
 </div>
 

@@ -38,11 +38,29 @@ class CinemaRepository implements CinemaRepositoryInterface
 
     public function deleteCity(City $city): bool
     {
+        $hasBookedOrPaidSlots = $city->cinemas()->whereHas('halls.slots.sessionSlots', function ($query) {
+            $query->whereIn('status', ['booked', 'paid']);
+        })->exists();
+
+        if ($hasBookedOrPaidSlots) {
+            session()->flash('error', 'Cannot delete the city because it has booked or paid seats in associated cinemas.');
+            return false;
+        }
+
         return $city->delete();
     }
 
     public function deleteCinema(Cinema $cinema): bool
     {
+        $hasBookedOrPaidSlots = $cinema->halls()->whereHas('slots.sessionSlots', function ($query) {
+            $query->whereIn('status', ['booked', 'paid']);
+        })->exists();
+
+        if ($hasBookedOrPaidSlots) {
+            session()->flash('error', 'Cannot delete the cinema because it has booked or paid seats in associated halls.');
+            return false;
+        }
+
         return $cinema->delete();
     }
 }

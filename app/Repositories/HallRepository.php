@@ -3,19 +3,28 @@
 namespace App\Repositories;
 
 use App\Models\Hall;
-use App\Models\Slot;
 use App\Models\Cinema;
-use Illuminate\Support\Collection;
+use App\Models\Slot;
+use Illuminate\Support\Facades\Session;
 
 class HallRepository implements HallRepositoryInterface
 {
+    protected int $minRows = 1;
+    protected int $maxRows = 20;
+    protected int $minColumns = 1;
+    protected int $maxColumns = 20;
+
     public function getCinemaWithHalls(int $cinemaId)
     {
         return Cinema::with('halls')->findOrFail($cinemaId);
     }
 
-    public function createHall(int $cinemaId, array $data): Hall
+    public function createHall(int $cinemaId, array $data): ?Hall
     {
+        if (!$this->validateRowsAndColumns($data)) {
+            return null;
+        }
+
         $cinema = Cinema::findOrFail($cinemaId);
         return $cinema->halls()->create($data);
     }
@@ -28,7 +37,18 @@ class HallRepository implements HallRepositoryInterface
     public function deleteHall(int $cinemaId, int $hallId): bool
     {
         $hall = $this->findHall($cinemaId, $hallId);
-        return $hall->delete();
+
+        $hasBookedOrPaidSlots = $hall->slots()->whereHas('sessionSlots', function ($query) {
+            $query->whereIn('status', ['booked', 'paid']);
+        })->exists();
+
+        if ($hasBookedOrPaidSlots) {
+            session()->flash('error', 'Cannot delete the hall because it has booked or paid seats.');
+            return false;
+        }
+
+        $hall->delete();
+        return true;
     }
 
     public function clearSeats(Hall $hall): bool
@@ -50,8 +70,12 @@ class HallRepository implements HallRepositoryInterface
         return true;
     }
 
-    public function editHall(int $cinemaId, int $hallId, array $data): array
+    public function editHall(int $cinemaId, int $hallId, array $data): ?array
     {
+        if (!$this->validateRowsAndColumns($data)) {
+            return null;
+        }
+
         $cinema = Cinema::findOrFail($cinemaId);
         $hall = Hall::where('cinema_id', $cinemaId)->findOrFail($hallId);
 
@@ -93,6 +117,7 @@ class HallRepository implements HallRepositoryInterface
             'seatStyles' => $seatStyles,
         ];
     }
+
 
     public function updateHallSeats(Hall $hall, array $selectedSeats, array &$errors): bool
     {
@@ -143,27 +168,26 @@ class HallRepository implements HallRepositoryInterface
         }
 
         if (!empty($slotsToDelete)) {
-            Slot::whereIn('id', $slotsToDelete)->each(function ($slot) {
-                $slot->sessionSlots()->delete();
-                $slot->delete();
-            });
+            Slot::whereIn('id', $slotsToDelete)->delete();
         }
 
         if (!empty($seatsToAdd)) {
             $hall->slots()->insert($seatsToAdd);
+        }
 
-            $newSlots = $hall->slots()->whereIn('row', array_column($seatsToAdd, 'row'))
-                ->whereIn('number', array_column($seatsToAdd, 'number'))
-                ->get();
+        return true;
+    }
 
-            foreach ($newSlots as $slot) {
-                foreach ($hall->sessions as $session) {
-                    $session->sessionSlots()->create([
-                        'slot_id' => $slot->id,
-                        'status' => 'available',
-                    ]);
-                }
-            }
+    protected function validateRowsAndColumns(array $data): bool
+    {
+        if (isset($data['rows']) && ($data['rows'] < $this->minRows || $data['rows'] > $this->maxRows)) {
+            session()->flash('error', "Qty of rows must be between {$this->minRows} and {$this->maxRows}.");
+            return false;
+        }
+
+        if (isset($data['columns']) && ($data['columns'] < $this->minColumns || $data['columns'] > $this->maxColumns)) {
+            session()->flash('error', "Qty of columns must be between {$this->minColumns} and {$this->maxColumns}.");
+            return false;
         }
 
         return true;

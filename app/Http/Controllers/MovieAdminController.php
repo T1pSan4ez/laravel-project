@@ -54,14 +54,23 @@ class MovieAdminController extends Controller
 
     public function destroy($id)
     {
-        $this->movieRepository->deleteMovie($id);
+        $deleted = $this->movieRepository->deleteMovie($id);
+
+        if (!$deleted) {
+            return redirect()->route('movies')->with('error', session('error'));
+        }
+
         return redirect()->route('movies')->with('success', 'Movie deleted successfully!');
     }
 
     public function search(Request $request)
     {
-        $query = $request->input('query');
-        $movies = $this->movieRepository->searchMovies($query);
-        return view('admin.movies', compact('movies', 'query'));
+        $query = $request->input('query', '');
+        $movies = $query
+            ? $this->movieRepository->searchMovies($query)
+            : $this->movieRepository->getAllMovies();
+
+        $genres = $this->movieRepository->getMovieGenres();
+        return view('admin.movies', compact('movies', 'query', 'genres'));
     }
 }

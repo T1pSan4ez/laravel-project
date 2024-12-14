@@ -40,8 +40,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/search', [MovieAdminController::class, 'search'])->name('movies.search');
     });
 
-   //Route::get('/admin-panel/theater-plays', [TheaterAdminController::class, 'index'])->name('theater-plays');
-
     Route::get('/admin-panel/cinemas', [CinemaController::class, 'index'])->name('cinemas');
     Route::post('/admin/halls/add-city', [CinemaController::class, 'addCity'])->name('cinemas.addCity');
     Route::post('/admin/halls/add-cinema', [CinemaController::class, 'addCinema'])->name('cinemas.addCinema');
@@ -77,4 +75,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/pdf-generate', [PDFController::class, 'generatePDF'])->name('pdf.generate');
 
     Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');
+    Route::post('/admin-panel/users/{id}/update-type', [UserController::class, 'updateUserType'])->name('users.updateType');
 });

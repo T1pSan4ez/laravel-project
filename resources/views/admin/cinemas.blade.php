@@ -9,6 +9,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <div class="add-city mb-4">
             <h5>Add City</h5>
             <form action="{{ route('cinemas.addCity') }}" method="POST">
@@ -84,13 +90,9 @@
                                     <h5 style="color: red;">{{ $city->name }}</h5>
                                 </div>
                                 <div class="col-auto">
-                                    <form action="{{ route('cinemas.deleteCity', $city->id) }}" method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-link text-danger p-0" onclick="return confirm('Are you sure you want to delete this city?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn btn-link text-danger p-0" data-bs-toggle="modal" data-bs-target="#confirmDeleteCityModal" data-city-id="{{ $city->id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -105,13 +107,9 @@
                                             </a>
                                         </div>
                                         <div class="col-auto">
-                                            <form action="{{ route('cinemas.deleteCinema', $cinema->id) }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-link text-danger p-0" onclick="return confirm('Are you sure you want to delete this cinema?')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-link text-danger p-0" data-bs-toggle="modal" data-bs-target="#confirmDeleteCinemaModal" data-cinema-id="{{ $cinema->id }}">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </div>
                                     </div>
                                     <hr>
@@ -124,14 +122,78 @@
         </div>
     </div>
 
-    <script>
-        function showCinemas(cityId) {
-            document.querySelectorAll('.cinema-group').forEach(group => {
-                group.style.display = 'none';
-            });
+    <div class="modal fade" id="confirmDeleteCityModal" tabindex="-1" aria-labelledby="confirmDeleteCityLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteCityLabel">Confirm City Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this city? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" id="deleteCityForm" action="">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            document.getElementById('city-' + cityId).style.display = 'block';
-        }
-    </script>
-
+    <div class="modal fade" id="confirmDeleteCinemaModal" tabindex="-1" aria-labelledby="confirmDeleteCinemaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteCinemaLabel">Confirm Cinema Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this cinema? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" id="deleteCinemaForm" action="">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
+
+<script>
+    function showCinemas(cityId) {
+        document.querySelectorAll('.cinema-group').forEach(group => {
+            group.style.display = 'none';
+        });
+
+        document.getElementById('city-' + cityId).style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteCityModal = document.getElementById('confirmDeleteCityModal');
+        const deleteCityForm = document.getElementById('deleteCityForm');
+
+        deleteCityModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const cityId = button.getAttribute('data-city-id');
+            deleteCityForm.action = `/admin/halls/delete-city/${cityId}`;
+        });
+
+        const deleteCinemaModal = document.getElementById('confirmDeleteCinemaModal');
+        const deleteCinemaForm = document.getElementById('deleteCinemaForm');
+
+        deleteCinemaModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const cinemaId = button.getAttribute('data-cinema-id');
+            deleteCinemaForm.action = `/admin/halls/delete-cinema/${cinemaId}`;
+        });
+    });
+</script>

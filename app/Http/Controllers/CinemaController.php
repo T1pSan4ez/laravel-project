@@ -41,7 +41,10 @@ class CinemaController extends Controller
     public function deleteCity($cityId)
     {
         $city = $this->cinemaRepository->getCityById($cityId);
-        $this->cinemaRepository->deleteCity($city);
+
+        if (!$this->cinemaRepository->deleteCity($city)) {
+            return redirect()->route('cinemas')->with('error', 'City cannot be deleted because it has active bookings.');
+        }
 
         return redirect()->route('cinemas')->with('success', 'City deleted successfully.');
     }
@@ -49,7 +52,10 @@ class CinemaController extends Controller
     public function deleteCinema($cinemaId)
     {
         $cinema = $this->cinemaRepository->getCinemaById($cinemaId);
-        $this->cinemaRepository->deleteCinema($cinema);
+
+        if (!$this->cinemaRepository->deleteCinema($cinema)) {
+            return redirect()->route('cinemas')->with('error', 'Cinema cannot be deleted because it has active bookings.');
+        }
 
         return redirect()->route('cinemas')->with('success', 'Cinema deleted successfully.');
     }

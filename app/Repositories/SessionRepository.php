@@ -147,6 +147,13 @@ class SessionRepository implements SessionRepositoryInterface
 
     public function deleteSession(Session $session): bool
     {
+        $hasBookedOrPaidSlots = $session->sessionSlots()->whereIn('status', ['booked', 'paid'])->exists();
+
+        if ($hasBookedOrPaidSlots) {
+            session()->flash('error', 'Cannot delete the session because it has booked or paid slots.');
+            return false;
+        }
+
         return $session->delete();
     }
 }

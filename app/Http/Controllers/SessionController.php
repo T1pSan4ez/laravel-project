@@ -75,7 +75,10 @@ class SessionController extends Controller
     public function destroy($id)
     {
         $session = $this->sessionRepository->findSessionById($id);
-        $this->sessionRepository->deleteSession($session);
+
+        if (!$this->sessionRepository->deleteSession($session)) {
+            return redirect()->route('sessions')->with('error', 'Cannot delete session with booked or paid slots.');
+        }
 
         return redirect()->route('sessions')->with('success', 'Session deleted successfully.');
     }
