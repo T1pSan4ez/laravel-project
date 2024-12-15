@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ProductRepositoryInterface;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;

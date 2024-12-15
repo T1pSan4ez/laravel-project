@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMovieRatingRequest;
 use App\Http\Resources\RatingResource;
-use App\Repositories\ApiMovieRatingRepositoryInterface;
+use App\Interfaces\ApiMovieRatingRepositoryInterface;
 
 
 class ApiMovieRatingController extends Controller

@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\QRLoginRequest;
-use App\Repositories\QRCodeRepositoryInterface;
+use App\Interfaces\QRCodeRepositoryInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class QRCodeController extends Controller
 {

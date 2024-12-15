@@ -7,7 +7,6 @@ use App\Http\Controllers\HallController;
 use App\Http\Controllers\MovieAdminController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\SessionController;
-use App\Http\Controllers\TheaterAdminController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;

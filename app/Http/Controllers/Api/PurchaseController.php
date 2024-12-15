@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePurchaseRequest;
-use App\Repositories\PurchaseRepositoryInterface;
+use App\Interfaces\PurchaseRepositoryInterface;
 
 class PurchaseController extends Controller
 {

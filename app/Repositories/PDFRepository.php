@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\PDFRepositoryInterface;
 use App\Models\City;
 use App\Models\Movie;
 use App\Models\Purchase;

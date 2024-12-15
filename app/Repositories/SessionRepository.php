@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\SessionRepositoryInterface;
 use App\Models\City;
 use App\Models\Movie;
 use App\Models\Session;

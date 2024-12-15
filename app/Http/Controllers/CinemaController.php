@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AddCityRequest;
 use App\Http\Requests\AddCinemaRequest;
-use App\Models\Cinema;
-use App\Models\City;
-use App\Repositories\CinemaRepositoryInterface;
+use App\Http\Requests\AddCityRequest;
+use App\Interfaces\CinemaRepositoryInterface;
 
 class CinemaController extends Controller
 {

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreMovieRequest;
+use App\Interfaces\MovieRepositoryInterface;
 use App\Models\Movie;
-use App\Repositories\MovieRepositoryInterface;
 use Illuminate\Http\Request;
 
 class MovieAdminController extends Controller

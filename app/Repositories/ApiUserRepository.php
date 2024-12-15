@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Services\FileUploadService;
+use App\Interfaces\ApiUserRepositoryInterface;
 use App\Models\Purchase;
 use App\Models\User;
+use App\Services\FileUploadService;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Eloquent\Collection;
-
 
 
 class ApiUserRepository implements ApiUserRepositoryInterface

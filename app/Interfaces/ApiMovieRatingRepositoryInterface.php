@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Interfaces;
 
 use App\Models\Rating;
 use Illuminate\Support\Collection;

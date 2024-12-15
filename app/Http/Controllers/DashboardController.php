@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\DashboardRepositoryInterface;
+use App\Interfaces\DashboardRepositoryInterface;
 
 class DashboardController extends Controller
 {

@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Models\Hall;
+use App\Interfaces\HallRepositoryInterface;
 use App\Models\Cinema;
+use App\Models\Hall;
 use App\Models\Slot;
-use Illuminate\Support\Facades\Session;
 
 class HallRepository implements HallRepositoryInterface
 {

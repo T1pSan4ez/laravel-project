@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ApiProductRepositoryInterface;
 use App\Models\Product;
 use Illuminate\Support\Collection;
 

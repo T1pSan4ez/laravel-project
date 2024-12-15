@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ApiMovieCommentRepositoryInterface;
 use App\Models\Comment;
 use App\Models\Movie;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

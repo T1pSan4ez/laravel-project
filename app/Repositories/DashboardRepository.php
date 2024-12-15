@@ -2,12 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Models\User;
-use App\Models\City;
+use App\Interfaces\DashboardRepositoryInterface;
 use App\Models\Cinema;
+use App\Models\City;
 use App\Models\Hall;
 use App\Models\Movie;
 use App\Models\Session;
+use App\Models\User;
 
 class DashboardRepository implements DashboardRepositoryInterface
 {

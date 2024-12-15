@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ApiCinemaRepositoryInterface;
 use App\Models\City;
 use Illuminate\Support\Collection;
 

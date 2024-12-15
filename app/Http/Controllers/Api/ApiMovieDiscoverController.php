@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FilmResource;
-use App\Repositories\ApiMovieDiscoverRepositoryInterface;
+use App\Interfaces\ApiMovieDiscoverRepositoryInterface;
 use Illuminate\Http\Request;
 
 class ApiMovieDiscoverController extends Controller

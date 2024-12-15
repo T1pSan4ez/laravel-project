@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateSessionSlotRequest;
-use App\Repositories\SessionSlotRepositoryInterface;
+use App\Interfaces\SessionSlotRepositoryInterface;
 
 class SessionSlotController extends Controller
 {

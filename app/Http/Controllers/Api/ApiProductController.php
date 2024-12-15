@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProductResource;
-use App\Repositories\ApiProductRepositoryInterface;
+use App\Interfaces\ApiProductRepositoryInterface;
 
 class ApiProductController extends Controller
 {

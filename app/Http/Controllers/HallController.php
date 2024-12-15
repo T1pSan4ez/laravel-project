@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHallRequest;
 use App\Http\Requests\UpdateSeatsRequest;
-use App\Repositories\HallRepositoryInterface;
+use App\Interfaces\HallRepositoryInterface;
 use Illuminate\Http\Request;
 
 class HallController extends Controller

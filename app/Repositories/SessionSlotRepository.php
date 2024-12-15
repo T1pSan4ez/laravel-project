@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Events\BookingSlots;
+use App\Interfaces\SessionSlotRepositoryInterface;
 use App\Jobs\DeleteBookedSlots;
 use App\Models\SessionSlot;
 

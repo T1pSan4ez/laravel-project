@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SessionRequest;
-use App\Repositories\SessionRepositoryInterface;
+use App\Interfaces\SessionRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 

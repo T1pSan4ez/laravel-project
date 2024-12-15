@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SessionResource;
-use App\Repositories\ApiSessionRepositoryInterface;
+use App\Interfaces\ApiSessionRepositoryInterface;
 
 class ApiSessionController extends Controller
 {

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\CinemaRepositoryInterface;
 use App\Models\Cinema;
 use App\Models\City;
 

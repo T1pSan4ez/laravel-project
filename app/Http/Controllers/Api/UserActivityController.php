@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserActivityRequest;
 use App\Http\Resources\RecommendedMovieResource;
 use App\Http\Resources\RecommendedSessionResource;
-use App\Repositories\UserActivityRepositoryInterface;
+use App\Interfaces\UserActivityRepositoryInterface;
 use Illuminate\Http\Request;
 
 class UserActivityController extends Controller

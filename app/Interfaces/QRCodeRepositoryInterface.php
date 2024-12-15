@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Interfaces;
 
 use App\Models\QRToken;
 use App\Models\User;

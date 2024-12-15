@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\QRCodeRepositoryInterface;
 use App\Models\QRToken;
 use App\Models\User;
 use Illuminate\Support\Str;

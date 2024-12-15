@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\GoogleAuthRepositoryInterface;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 

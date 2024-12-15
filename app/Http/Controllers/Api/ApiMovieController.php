@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MovieResource;
-use App\Repositories\ApiMovieRepositoryInterface;
+use App\Interfaces\ApiMovieRepositoryInterface;
 
 class ApiMovieController extends Controller
 {

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ApiMovieDiscoverRepositoryInterface;
 use App\Models\Genre;
 use App\Models\Movie;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

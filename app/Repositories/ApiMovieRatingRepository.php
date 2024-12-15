@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Rating;
+use App\Interfaces\ApiMovieRatingRepositoryInterface;
 use App\Models\Movie;
+use App\Models\Rating;
 use Illuminate\Support\Collection;
 
 class ApiMovieRatingRepository implements ApiMovieRatingRepositoryInterface

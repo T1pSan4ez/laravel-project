@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
-use App\Repositories\UserRepositoryInterface;
 use Illuminate\Http\Request;
 
 class UserController extends Controller

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Repositories\PDFRepositoryInterface;
+use App\Interfaces\PDFRepositoryInterface;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 

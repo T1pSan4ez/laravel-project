@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ApiMovieRepositoryInterface;
 use App\Models\Movie;
 use Illuminate\Support\Collection;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Interfaces;
 
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Models\Comment;
 use App\Models\Movie;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface ApiMovieCommentRepositoryInterface
 {

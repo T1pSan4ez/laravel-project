@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\UserActivityRepositoryInterface;
+use App\Models\Movie;
 use App\Models\Session;
 use App\Models\UserActivity;
-use App\Models\Movie;
 use Illuminate\Support\Collection;
 
 class UserActivityRepository implements UserActivityRepositoryInterface

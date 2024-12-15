@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePaymentRequest;
-use App\Repositories\ApiPaymentRepositoryInterface;
-use Illuminate\Http\Request;
+use App\Interfaces\ApiPaymentRepositoryInterface;
 
 class ApiPaymentController extends Controller
 {

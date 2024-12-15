@@ -2,11 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\PurchaseRepositoryInterface;
+use App\Mail\PurchaseMailer;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\SessionSlot;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\PurchaseMailer;
 
 class PurchaseRepository implements PurchaseRepositoryInterface
 {

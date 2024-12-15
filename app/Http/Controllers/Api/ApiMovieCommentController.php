@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMovieCommentRequest;
 use App\Http\Resources\CommentResource;
-use App\Models\Movie;
+use App\Interfaces\ApiMovieCommentRepositoryInterface;
 use App\Models\Comment;
-use App\Repositories\ApiMovieCommentRepositoryInterface;
+use App\Models\Movie;
 use Illuminate\Http\Request;
 
 class ApiMovieCommentController extends Controller

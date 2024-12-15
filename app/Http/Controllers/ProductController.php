@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Interfaces\ProductRepositoryInterface;
 use App\Models\Product;
-use App\Repositories\ProductRepositoryInterface;
-use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {

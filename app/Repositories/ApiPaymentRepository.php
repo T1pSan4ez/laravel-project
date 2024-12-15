@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\ApiPaymentRepositoryInterface;
 use App\Models\Payment;
 
 class ApiPaymentRepository implements ApiPaymentRepositoryInterface

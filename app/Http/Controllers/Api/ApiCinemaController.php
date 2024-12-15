@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CityResource;
-use App\Repositories\ApiCinemaRepositoryInterface;
+use App\Interfaces\ApiCinemaRepositoryInterface;
 
 class ApiCinemaController extends Controller
 {

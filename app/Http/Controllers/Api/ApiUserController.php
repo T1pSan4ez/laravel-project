@@ -8,7 +8,7 @@ use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\PurchaseResource;
 use App\Http\Resources\UserResource;
-use App\Repositories\ApiUserRepositoryInterface;
+use App\Interfaces\ApiUserRepositoryInterface;
 
 
 class ApiUserController extends Controller
