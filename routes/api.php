@@ -64,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [ApiUserController::class, 'show']);
     Route::post('/user/profile', [ApiUserController::class, 'updateProfile']);
     Route::post('/user/password', [ApiUserController::class, 'updatePassword']);
+    Route::get('/user/purchases', [ApiUserController::class, 'getPurchases']);
+    Route::post('/user/avatar', [ApiUserController::class, 'updateAvatar']);
 
     Route::get('/qr-token', [QRCodeController::class, 'generateToken'])->name('qr.token');
 

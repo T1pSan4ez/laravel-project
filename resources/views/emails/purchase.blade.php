@@ -1,5 +1,6 @@
 <h1>Thank you for your purchase!</h1>
 <p><strong>Code:</strong> {{ $purchase->purchase_code }}</p>
+
 <h3>Items:</h3>
 <ul>
     @php $totalCost = 0; @endphp
@@ -11,4 +12,5 @@
     @endforeach
 </ul>
 <h3>Total Cost: {{ number_format($totalCost, 2) }} UAH</h3>
+
 <p>Thank you for choosing MovieApp!</p>

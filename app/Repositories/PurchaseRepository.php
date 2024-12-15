@@ -50,4 +50,9 @@ class PurchaseRepository implements PurchaseRepositoryInterface
 
         return $purchase->load('items');
     }
+
+    private function calculateTotal(array $itemsData): float
+    {
+        return collect($itemsData)->sum(fn($item) => $item['quantity'] * $item['price']);
+    }
 }
