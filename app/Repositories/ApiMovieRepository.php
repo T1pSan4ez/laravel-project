@@ -10,15 +10,25 @@ class ApiMovieRepository implements ApiMovieRepositoryInterface
 {
     public function getMoviesByCinema(int $cinemaId): Collection
     {
-        $movies = Movie::whereHas('sessions', function ($query) use ($cinemaId) {
+        $today = now()->toDateString();
+
+        $movies = Movie::whereHas('sessions', function ($query) use ($cinemaId, $today) {
             $query->whereHas('hall', function ($hallQuery) use ($cinemaId) {
                 $hallQuery->where('cinema_id', $cinemaId);
-            });
+            })
+                ->where(function ($sessionQuery) use ($today) {
+                    $sessionQuery->whereDate('start_time', '>=', $today)
+                    ->orWhereDate('start_time', $today);
+                });
         })->with([
-            'sessions' => function ($query) use ($cinemaId) {
+            'sessions' => function ($query) use ($cinemaId, $today) {
                 $query->whereHas('hall', function ($hallQuery) use ($cinemaId) {
                     $hallQuery->where('cinema_id', $cinemaId);
-                })->orderBy('start_time', 'asc');
+                })
+                    ->where(function ($sessionQuery) use ($today) {
+                        $sessionQuery->whereDate('start_time', '>=', $today)
+                            ->orWhereDate('start_time', $today);
+                    })->orderBy('start_time', 'asc');
             },
             'genres'
         ])->get();
@@ -27,4 +37,5 @@ class ApiMovieRepository implements ApiMovieRepositoryInterface
             return optional($movie->sessions->first())->start_time;
         });
     }
+
 }

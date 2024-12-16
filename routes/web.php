@@ -10,6 +10,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,11 +22,9 @@ use App\Http\Controllers\ProductController;
 |
 */
 
-
 Route::get('/', function () {
     return view('layouts.main');
 });
-
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/admin-panel/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -39,18 +38,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/search', [MovieAdminController::class, 'search'])->name('movies.search');
     });
 
-    Route::get('/admin-panel/cinemas', [CinemaController::class, 'index'])->name('cinemas');
-    Route::post('/admin/halls/add-city', [CinemaController::class, 'addCity'])->name('cinemas.addCity');
-    Route::post('/admin/halls/add-cinema', [CinemaController::class, 'addCinema'])->name('cinemas.addCinema');
-    Route::delete('/admin/halls/delete-city/{city}', [CinemaController::class, 'deleteCity'])->name('cinemas.deleteCity');
-    Route::delete('/admin/halls/delete-cinema/{cinema}', [CinemaController::class, 'deleteCinema'])->name('cinemas.deleteCinema');
+    Route::prefix('/admin-panel/cinemas')->group(function () {
+        Route::get('/', [CinemaController::class, 'index'])->name('cinemas');
+        Route::post('/add-city', [CinemaController::class, 'addCity'])->name('cinemas.addCity');
+        Route::post('/add-cinema', [CinemaController::class, 'addCinema'])->name('cinemas.addCinema');
+        Route::delete('/delete-city/{city}', [CinemaController::class, 'deleteCity'])->name('cinemas.deleteCity');
+        Route::delete('/delete-cinema/{cinema}', [CinemaController::class, 'deleteCinema'])->name('cinemas.deleteCinema');
+    });
 
-    Route::get('/admin-panel/cinema/{cinema_id}/halls', [HallController::class, 'index'])->name('halls');
-    Route::post('/admin-panel/cinema/{cinema_id}/halls', [HallController::class, 'store'])->name('halls.store');
-    Route::delete('/admin-panel/cinema/{cinema_id}/halls/{hall_id}', [HallController::class, 'destroy'])->name('halls.destroy');
-    Route::get('/admin-panel/cinema/{cinema_id}/halls/{hall_id}/edit', [HallController::class, 'edit'])->name('halls.edit');
-    Route::post('/admin-panel/cinema/{cinema_id}/halls/{hall_id}/update-seats', [HallController::class, 'updateSeats'])->name('halls.updateSeats');
-    Route::post('/admin-panel/cinema/{cinema_id}/halls/{hall_id}/clear-seats', [HallController::class, 'clearSeats'])->name('halls.clearSeats');
+    Route::prefix('/admin-panel/cinema/{cinema_id}/halls')->group(function () {
+        Route::get('/', [HallController::class, 'index'])->name('halls');
+        Route::post('/', [HallController::class, 'store'])->name('halls.store');
+        Route::delete('/{hall_id}', [HallController::class, 'destroy'])->name('halls.destroy');
+        Route::get('/{hall_id}/edit', [HallController::class, 'edit'])->name('halls.edit');
+        Route::post('/{hall_id}/update-seats', [HallController::class, 'updateSeats'])->name('halls.updateSeats');
+        Route::post('/{hall_id}/clear-seats', [HallController::class, 'clearSeats'])->name('halls.clearSeats');
+    });
 
     Route::prefix('/admin-panel/sessions')->group(function () {
         Route::get('/', [SessionController::class, 'index'])->name('sessions');
@@ -69,10 +72,14 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     });
 
-    Route::get('/admin/pdf-generator', [PDFController::class, 'index'])->name('pdf.form');
-    Route::post('/admin/pdf-preview', [PDFController::class, 'preview'])->name('pdf.preview');
-    Route::post('/admin/pdf-generate', [PDFController::class, 'generatePDF'])->name('pdf.generate');
+    Route::prefix('/admin/pdf')->group(function () {
+        Route::get('/generator', [PDFController::class, 'index'])->name('pdf.form');
+        Route::post('/preview', [PDFController::class, 'preview'])->name('pdf.preview');
+        Route::post('/generate', [PDFController::class, 'generatePDF'])->name('pdf.generate');
+    });
 
-    Route::get('/admin-panel/users', [UserController::class, 'index'])->name('users');
-    Route::post('/admin-panel/users/{id}/update-type', [UserController::class, 'updateUserType'])->name('users.updateType');
+    Route::prefix('/admin-panel/users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('users');
+        Route::post('/{id}/update-type', [UserController::class, 'updateUserType'])->name('users.updateType');
+    });
 });

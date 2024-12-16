@@ -10,19 +10,33 @@ class ApiCinemaRepository implements ApiCinemaRepositoryInterface
 {
     public function getCitiesWithSessions(): Collection
     {
-        return City::whereHas('cinemas.halls.slots.sessionSlots', function ($query) {
-            $query->whereHas('session');
+        $today = now()->toDateString();
+
+        return City::whereHas('cinemas.halls.slots.sessionSlots', function ($query) use ($today) {
+            $query->whereHas('session', function ($sessionQuery) use ($today) {
+                $sessionQuery->whereDate('start_time', '>=', $today)
+                    ->orWhereDate('start_time', $today);
+            });
         })->with([
-            'cinemas' => function ($cinemaQuery) {
-                $cinemaQuery->whereHas('halls.slots.sessionSlots', function ($query) {
-                    $query->whereHas('session');
+            'cinemas' => function ($cinemaQuery) use ($today) {
+                $cinemaQuery->whereHas('halls.slots.sessionSlots', function ($query) use ($today) {
+                    $query->whereHas('session', function ($sessionQuery) use ($today) {
+                        $sessionQuery->whereDate('start_time', '>=', $today)
+                            ->orWhereDate('start_time', $today);
+                    });
                 })->with([
-                    'halls' => function ($hallQuery) {
-                        $hallQuery->whereHas('slots.sessionSlots', function ($query) {
-                            $query->whereHas('session');
-                        })->with(['slots' => function ($slotQuery) {
-                            $slotQuery->whereHas('sessionSlots', function ($query) {
-                                $query->whereHas('session');
+                    'halls' => function ($hallQuery) use ($today) {
+                        $hallQuery->whereHas('slots.sessionSlots', function ($query) use ($today) {
+                            $query->whereHas('session', function ($sessionQuery) use ($today) {
+                                $sessionQuery->whereDate('start_time', '>=', $today)
+                                    ->orWhereDate('start_time', $today);
+                            });
+                        })->with(['slots' => function ($slotQuery) use ($today) {
+                            $slotQuery->whereHas('sessionSlots', function ($query) use ($today) {
+                                $query->whereHas('session', function ($sessionQuery) use ($today) {
+                                    $sessionQuery->whereDate('start_time', '>=', $today)
+                                        ->orWhereDate('start_time', $today);
+                                });
                             });
                         }]);
                     }
@@ -30,4 +44,5 @@ class ApiCinemaRepository implements ApiCinemaRepositoryInterface
             }
         ])->orderBy('name', 'asc')->get();
     }
+
 }

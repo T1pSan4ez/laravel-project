@@ -33,56 +33,57 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/cities', [ApiCinemaController::class, 'index']);
-Route::get('/movies/{cinemaId}', [ApiMovieController::class, 'index']);
-Route::get('/sessions', [ApiMovieController::class, 'index']);
+Route::group([], function () {
+    Route::get('/cities', [ApiCinemaController::class, 'index']);
+    Route::get('/movies/{cinemaId}', [ApiMovieController::class, 'index']);
+    Route::get('/sessions', [ApiMovieController::class, 'index']);
+    Route::get('/sessions/{id}', [ApiSessionController::class, 'index']);
+    Route::get('/products', [ApiProductController::class, 'index']);
+    Route::patch('/session-slots/{session_id}', [SessionSlotController::class, 'updateStatuses']);
+    Route::post('/payments', [ApiPaymentController::class, 'store']);
 
-Route::get('/sessions/{id}', [ApiSessionController::class, 'index']);
-Route::get('/products', [ApiProductController::class, 'index']);
-Route::patch('/session-slots/{session_id}', [SessionSlotController::class, 'updateStatuses']);
-Route::post('/payments', [ApiPaymentController::class, 'store']);
+    Route::get('/movies', [ApiMovieDiscoverController::class, 'index']);
+    Route::get('/movie/{id}', [ApiMovieDiscoverController::class, 'show']);
+    Route::get('/genres', [ApiMovieDiscoverController::class, 'genres']);
 
-Route::get('/movies', [ApiMovieDiscoverController::class, 'index']);
-Route::get('/movie/{id}', [ApiMovieDiscoverController::class, 'show']);
-Route::get('/genres', [ApiMovieDiscoverController::class, 'genres']);
+    Route::get('movies/{movieId}/comments', [ApiMovieCommentController::class, 'index']);
+    Route::get('movies/{movieId}/ratings', [ApiMovieRatingController::class, 'index']);
+
+    Route::post('/purchases', [PurchaseController::class, 'store']);
+    Route::post('/login/qr', [QRCodeController::class, 'login']);
+});
 
 Route::middleware('web')->group(function () {
     Route::post('/login', [ApiAuthController::class, 'login']);
     Route::post('/register', [ApiAuthController::class, 'register']);
 
-
     Route::get('/auth/google/redirect', [GoogleController::class, 'redirectToGoogle']);
     Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 });
 
-
-Route::get('movies/{movieId}/comments', [ApiMovieCommentController::class, 'index']);
-
-Route::get('movies/{movieId}/ratings', [ApiMovieRatingController::class, 'index']);
-
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [ApiUserController::class, 'show']);
-    Route::post('/user/profile', [ApiUserController::class, 'updateProfile']);
-    Route::post('/user/password', [ApiUserController::class, 'updatePassword']);
-    Route::get('/user/purchases', [ApiUserController::class, 'getPurchases']);
-    Route::post('/user/avatar', [ApiUserController::class, 'updateAvatar']);
+    Route::prefix('user')->group(function () {
+        Route::get('/', [ApiUserController::class, 'show']);
+        Route::post('/profile', [ApiUserController::class, 'updateProfile']);
+        Route::post('/password', [ApiUserController::class, 'updatePassword']);
+        Route::get('/purchases', [ApiUserController::class, 'getPurchases']);
+        Route::post('/avatar', [ApiUserController::class, 'updateAvatar']);
+    });
 
     Route::get('/qr-token', [QRCodeController::class, 'generateToken'])->name('qr.token');
 
-    Route::post('movies/{movieId}/comments', [ApiMovieCommentController::class, 'store']);
-    Route::delete('movies/comments/{comment}', [ApiMovieCommentController::class, 'destroy']);
+    Route::prefix('movies')->group(function () {
+        Route::post('{movieId}/comments', [ApiMovieCommentController::class, 'store']);
+        Route::delete('comments/{comment}', [ApiMovieCommentController::class, 'destroy']);
 
-    Route::post('movies/{movieId}/ratings', [ApiMovieRatingController::class, 'store']);
+        Route::post('{movieId}/ratings', [ApiMovieRatingController::class, 'store']);
+    });
 
-    Route::get('/user-activity', [UserActivityController::class, 'index']);
-    Route::post('/user-activity', [UserActivityController::class, 'store']);
-    Route::get('/user-activity/recommend-sessions', [UserActivityController::class, 'recommendSessions']);
+    Route::prefix('user-activity')->group(function () {
+        Route::get('/', [UserActivityController::class, 'index']);
+        Route::post('/', [UserActivityController::class, 'store']);
+        Route::get('/recommend-sessions', [UserActivityController::class, 'recommendSessions']);
+    });
 
     Route::post('/logout', [ApiAuthController::class, 'logout']);
 });
-
-Route::post('/purchases', [PurchaseController::class, 'store']);
-
-Route::post('/login/qr', [QRCodeController::class, 'login']);
-
-

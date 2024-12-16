@@ -13,11 +13,11 @@
             <table class="table table-bordered mt-3">
                 <thead class="table-light">
                 <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>User Type</th>
-                    <th>Actions</th>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 30%;">Name</th>
+                    <th style="width: 40%;">Email</th>
+                    <th style="width: 10%;">User Type</th>
+                    <th style="width: 15%;">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -54,3 +54,12 @@
         @endif
     </div>
 @endsection
+
+<style>
+    .fixed-table th, .fixed-table td {
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

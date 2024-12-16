@@ -26,7 +26,24 @@ class SessionRepository implements SessionRepositoryInterface
 
     public function getAllCitiesWithRelations(): Collection
     {
-        return City::with('cinemas.halls')->orderBy('name', 'asc')->get();
+        return City::whereHas('cinemas.halls', function ($query) {
+            $query->whereHas('slots', function ($slotQuery) {
+                $slotQuery->whereNotNull('id');
+            });
+        })
+            ->with(['cinemas' => function ($cinemaQuery) {
+                $cinemaQuery->whereHas('halls', function ($hallQuery) {
+                    $hallQuery->whereHas('slots', function ($slotQuery) {
+                        $slotQuery->whereNotNull('id');
+                    });
+                })->with(['halls' => function ($hallQuery) {
+                    $hallQuery->whereHas('slots', function ($slotQuery) {
+                        $slotQuery->whereNotNull('id');
+                    });
+                }]);
+            }])
+            ->orderBy('name', 'asc')
+            ->get();
     }
 
     public function createSession(array $data): Session
